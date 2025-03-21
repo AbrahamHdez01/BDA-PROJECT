@@ -1,0 +1,40 @@
+services:
+  web:
+    build: .
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=dev_secret_key_change_in_production
+      - DATABASE=postgres
+      - SQL_ENGINE=django.db.backends.postgresql
+      - SQL_DATABASE=medidash
+      - SQL_USER=postgres
+      - SQL_PASSWORD=postgres
+      - SQL_HOST=db
+      - SQL_PORT=5432
+      - LOAD_SAMPLE_DATA=true
+    depends_on:
+      - db
+    restart: on-failure
+    command: >
+      sh -c "watchmedo auto-restart --directory=/app --pattern=*.py --recursive -- python manage.py runserver 0.0.0.0:8000"
+
+  db:
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=medidash
+    ports:
+      - "5432:5432"
+    restart: on-failure
+
+volumes:
+  postgres_data:
+  static_volume:

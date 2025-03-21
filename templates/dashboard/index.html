@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+
+{% block dashboard_active %}active{% endblock %}
+
+{% block title %}Dashboard | MediDash{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Total Records</h5>
+        <h2 class="display-4">{{ total_records }}</h2>
+        <p class="text-muted">Health records in database</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Distinct People</h5>
+        <h2 class="display-4">{{ distinct_people }}</h2>
+        <p class="text-muted">Individuals in database</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Locations</h5>
+        <h2 class="display-4">{{ distinct_locations }}</h2>
+        <p class="text-muted">Monitored geographical areas</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5>Disease Severity Distribution</h5>
+      </div>
+      <div class="card-body">
+        <canvas id="severityChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5>Infection Risk Distribution</h5>
+      </div>
+      <div class="card-body">
+        <canvas id="riskChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h5>Outbreak Status</h5>
+      </div>
+      <div class="card-body">
+        <canvas id="outbreakChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h5>Recent Health Records</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Person</th>
+                <th>Symptoms</th>
+                <th>Test Result</th>
+                <th>Risk Level</th>
+                <th>Disease Severity</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for record in recent_records %}
+              <tr>
+                <td>{{ record.id }}</td>
+                <td>{{ record.date_of_data_collection }}</td>
+                <td>{{ record.person }}</td>
+                <td>{{ record.reported_symptoms }}</td>
+                <td>
+                  {% if record.testing_results == 'Positive' %}
+                  <span class="badge bg-danger">{{ record.testing_results }}</span>
+                  {% elif record.testing_results == 'Negative' %}
+                  <span class="badge bg-success">{{ record.testing_results }}</span>
+                  {% else %}
+                  <span class="badge bg-warning">{{ record.testing_results }}</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if record.infection_risk_level == 'High Risk' %}
+                  <span class="badge bg-danger">{{ record.infection_risk_level }}</span>
+                  {% elif record.infection_risk_level == 'Medium Risk' %}
+                  <span class="badge bg-warning">{{ record.infection_risk_level }}</span>
+                  {% else %}
+                  <span class="badge bg-success">{{ record.infection_risk_level }}</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if record.disease_severity == 'Severe' %}
+                  <span class="badge bg-danger">{{ record.disease_severity }}</span>
+                  {% elif record.disease_severity == 'Moderate' %}
+                  <span class="badge bg-warning">{{ record.disease_severity }}</span>
+                  {% elif record.disease_severity == 'Mild' %}
+                  <span class="badge bg-info">{{ record.disease_severity }}</span>
+                  {% else %}
+                  <span class="badge bg-success">{{ record.disease_severity }}</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Initialize disease severity chart
+  const sevCtx = document.getElementById('severityChart').getContext('2d');
+  const severityChart = new Chart(sevCtx, {
+    type: 'pie',
+    data: {
+      labels: {{ severity_data.labels | safe }},
+  datasets: [{
+    data: {{ severity_data.data | safe }},
+    backgroundColor: [
+    'rgba(75, 192, 192, 0.7)',
+    'rgba(54, 162, 235, 0.7)',
+    'rgba(255, 206, 86, 0.7)',
+    'rgba(255, 99, 132, 0.7)'
+  ],
+    borderWidth: 1
+      }]
+    },
+  options: {
+    responsive: true,
+      plugins: {
+      legend: {
+        position: 'bottom'
+      },
+      title: {
+        display: true,
+          text: 'Disease Severity Distribution'
+      }
+    }
+  }
+  });
+
+  // Initialize risk level chart
+  const riskCtx = document.getElementById('riskChart').getContext('2d');
+  const riskChart = new Chart(riskCtx, {
+    type: 'doughnut',
+    data: {
+      labels: {{ risk_data.labels | safe }},
+  datasets: [{
+    data: {{ risk_data.data | safe }},
+    backgroundColor: [
+    'rgba(75, 192, 192, 0.7)',
+    'rgba(255, 206, 86, 0.7)',
+    'rgba(255, 99, 132, 0.7)'
+  ],
+    borderWidth: 1
+      }]
+    },
+  options: {
+    responsive: true,
+      plugins: {
+      legend: {
+        position: 'bottom'
+      },
+      title: {
+        display: true,
+          text: 'Infection Risk Level Distribution'
+      }
+    }
+  }
+  });
+
+  // Initialize outbreak status chart
+  const outbreakCtx = document.getElementById('outbreakChart').getContext('2d');
+  const outbreakChart = new Chart(outbreakCtx, {
+    type: 'bar',
+    data: {
+      labels: {{ outbreak_data.labels | safe }},
+  datasets: [{
+    label: 'Count',
+    data: {{ outbreak_data.data | safe }},
+    backgroundColor: [
+    'rgba(75, 192, 192, 0.7)',
+    'rgba(255, 206, 86, 0.7)',
+    'rgba(255, 99, 132, 0.7)',
+    'rgba(153, 102, 255, 0.7)'
+  ],
+    borderWidth: 1
+      }]
+    },
+  options: {
+    responsive: true,
+      scales: {
+      y: {
+        beginAtZero: true
+      }
+    },
+    plugins: {
+      legend: {
+        display: false
+      },
+      title: {
+        display: true,
+          text: 'Outbreak Status Distribution'
+      }
+    }
+  }
+  });
+</script>
+{% endblock %}

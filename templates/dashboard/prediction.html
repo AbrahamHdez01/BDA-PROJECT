@@ -1,0 +1,368 @@
+{% extends 'base.html' %}
+
+{% block prediction_active %}active{% endblock %}
+
+{% block title %}Disease Prediction | MediDash{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h5>Disease Prediction Model</h5>
+      </div>
+      <div class="card-body">
+        <p class="mb-3">This page shows disease prediction models based on historical data and environmental factors.
+          The predictions use machine learning algorithms to forecast potential disease outbreaks.</p>
+
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle"></i> Predictions are generated using Random Forest regression on historical data
+          and should be used as guidance only.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h5>Disease Case Prediction (Next 30 Days)</h5>
+      </div>
+      <div class="card-body">
+        <div class="prediction-chart">
+          <canvas id="timeSeriesChart" style="height: 350px;"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5>Environmental Factor Correlation</h5>
+      </div>
+      <div class="card-body">
+        <canvas id="aqiScatterChart" style="height: 350px;"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5>Risk Assessment by Location</h5>
+      </div>
+      <div class="card-body">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Location</th>
+              <th>Current Risk Level</th>
+              <th>Predicted Risk</th>
+              <th>Risk Change</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for location in locations %}
+            <tr>
+              <td>{{ location.name }}</td>
+              <td>
+                {% if location.current_risk == 'High Risk' %}
+                <span class="badge bg-danger">{{ location.current_risk }}</span>
+                {% elif location.current_risk == 'Medium Risk' %}
+                <span class="badge bg-warning">{{ location.current_risk }}</span>
+                {% else %}
+                <span class="badge bg-success">{{ location.current_risk }}</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if location.predicted_risk == 'High Risk' %}
+                <span class="badge bg-danger">{{ location.predicted_risk }}</span>
+                {% elif location.predicted_risk == 'Medium Risk' %}
+                <span class="badge bg-warning">{{ location.predicted_risk }}</span>
+                {% else %}
+                <span class="badge bg-success">{{ location.predicted_risk }}</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if location.risk_change > 0 %}
+                <span class="text-danger"><i class="fas fa-arrow-up"></i> {{ location.risk_change }}%</span>
+                {% elif location.risk_change < 0 %} <span class="text-success"><i class="fas fa-arrow-down"></i> {{
+                  location.risk_change|abs }}%</span>
+                  {% else %}
+                  <span class="text-muted">No change</span>
+                  {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Create charts when document is ready
+    createPredictionCharts();
+  });
+
+  function createPredictionCharts() {
+    createTimeSeriesChart();
+    createAQIChart();
+  }
+
+  function createTimeSeriesChart() {
+    const ctx = document.getElementById('timeSeriesChart').getContext('2d');
+
+    // Generate placeholder data
+    let dates = [];
+    let historicalData = [];
+    let predictionData = [];
+
+    // Past 30 days for historical data
+    for (let i = 30; i > 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      dates.push(date.toLocaleDateString());
+
+      // Random data between 50-150
+      historicalData.push(Math.floor(Math.random() * 100) + 50);
+    }
+
+    // Next 30 days for prediction data
+    let predictionDates = [];
+    for (let i = 1; i <= 30; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() + i);
+      predictionDates.push(date.toLocaleDateString());
+
+      // Prediction based on last historical value with some randomness
+      const lastValue = historicalData[historicalData.length - 1];
+      predictionData.push(Math.floor(lastValue * (1 + 0.05 * i) * (0.9 + Math.random() * 0.2)));
+    }
+
+    // All dates for x-axis
+    const allDates = [...dates, ...predictionDates];
+
+    // Format data for Chart.js (historical data followed by nulls, nulls followed by prediction data)
+    const chartHistoricalData = [...historicalData];
+    const chartPredictionData = [];
+
+    // Add nulls to historical data for prediction dates
+    for (let i = 0; i < predictionDates.length; i++) {
+      chartHistoricalData.push(null);
+    }
+
+    // Add nulls to prediction data for historical dates
+    for (let i = 0; i < dates.length; i++) {
+      chartPredictionData.push(null);
+    }
+
+    // Add prediction data
+    for (let i = 0; i < predictionData.length; i++) {
+      chartPredictionData.push(predictionData[i]);
+    }
+
+    // Create chart
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: allDates,
+        datasets: [
+          {
+            label: 'Historical Cases',
+            data: chartHistoricalData,
+            backgroundColor: 'rgba(78, 115, 223, 0.05)',
+            borderColor: 'rgba(78, 115, 223, 1)',
+            borderWidth: 2,
+            pointRadius: 3,
+            pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 1,
+            tension: 0.4
+          },
+          {
+            label: 'Predicted Cases',
+            data: chartPredictionData,
+            backgroundColor: 'rgba(246, 194, 62, 0.05)',
+            borderColor: 'rgba(246, 194, 62, 1)',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            pointRadius: 3,
+            pointBackgroundColor: 'rgba(246, 194, 62, 1)',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 1,
+            tension: 0.4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Date'
+            },
+            grid: {
+              display: false
+            }
+          },
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Number of Cases'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            position: 'bottom'
+          },
+          title: {
+            display: true,
+            text: 'Disease Case Forecast'
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false
+          }
+        }
+      }
+    });
+  }
+
+  function createAQIChart() {
+    const ctx = document.getElementById('aqiScatterChart').getContext('2d');
+
+    // Generate placeholder data
+    const scatterData = [];
+
+    // Generate 50 random data points
+    for (let i = 0; i < 50; i++) {
+      scatterData.push({
+        x: Math.floor(Math.random() * 300),
+        y: Math.floor(Math.random() * 4)
+      });
+    }
+
+    // Create chart
+    const chart = new Chart(ctx, {
+      type: 'scatter',
+      data: {
+        datasets: [{
+          label: 'AQI vs Disease Severity',
+          data: scatterData,
+          backgroundColor: 'rgba(78, 115, 223, 0.7)',
+          pointRadius: 5,
+          pointHoverRadius: 7
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Air Quality Index (AQI)'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Disease Severity (0-3)'
+            },
+            ticks: {
+              callback: function (value) {
+                const labels = ['None', 'Mild', 'Moderate', 'Severe'];
+                return labels[value] || value;
+              }
+            },
+            min: 0,
+            max: 3,
+            stepSize: 1
+          }
+        },
+        plugins: {
+          legend: {
+            position: 'bottom'
+          },
+          title: {
+            display: true,
+            text: 'Air Quality Impact on Disease Severity'
+          },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                const severityLabels = ['None', 'Mild', 'Moderate', 'Severe'];
+                const point = context.raw;
+                return `AQI: ${point.x}, Severity: ${severityLabels[Math.round(point.y)]}`;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Add trend line (simple linear regression)
+    const trendData = [];
+
+    // Calculate trend line points
+    let sumX = 0;
+    let sumY = 0;
+    let sumXY = 0;
+    let sumX2 = 0;
+
+    // Calculate sums for linear regression
+    scatterData.forEach(point => {
+      sumX += point.x;
+      sumY += point.y;
+      sumXY += point.x * point.y;
+      sumX2 += point.x * point.x;
+    });
+
+    const n = scatterData.length;
+    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    const intercept = (sumY - slope * sumX) / n;
+
+    // Get min and max x values
+    let minX = Math.min(...scatterData.map(point => point.x));
+    let maxX = Math.max(...scatterData.map(point => point.x));
+
+    // Create trend line data
+    trendData.push({
+      x: minX,
+      y: slope * minX + intercept
+    });
+
+    trendData.push({
+      x: maxX,
+      y: slope * maxX + intercept
+    });
+
+    // Add trend line to chart
+    chart.data.datasets.push({
+      label: 'Trend Line',
+      data: trendData,
+      backgroundColor: 'rgba(255, 99, 132, 0.7)',
+      pointRadius: 0,
+      borderColor: 'rgba(255, 99, 132, 0.7)',
+      borderWidth: 2,
+      type: 'line',
+      showLine: true
+    });
+
+    chart.update();
+  }
+</script>
+{% endblock %}

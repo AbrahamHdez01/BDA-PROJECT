@@ -1,0 +1,143 @@
+/* Main Dashboard Styling */
+
+body {
+  background-color: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Sidebar Styling */
+.wrapper {
+  display: flex;
+  width: 100%;
+}
+
+#sidebar {
+  min-width: 250px;
+  max-width: 250px;
+  min-height: 100vh;
+  transition: all 0.3s;
+  padding: 15px;
+}
+
+#sidebar.active {
+  margin-left: -250px;
+}
+
+#sidebar .sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#sidebar ul.components {
+  padding: 20px 0;
+}
+
+#sidebar ul p {
+  color: #fff;
+  padding: 10px;
+}
+
+#sidebar ul li a {
+  padding: 10px;
+  font-size: 1.1em;
+  display: block;
+  color: white;
+  text-decoration: none;
+}
+
+#sidebar ul li a:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+#sidebar ul li.active>a {
+  color: #fff;
+  background: #007bff;
+}
+
+/* Content Area Styling */
+#content {
+  width: 100%;
+  min-height: 100vh;
+  transition: all 0.3s;
+  padding: 0;
+}
+
+/* Card Styling */
+.card {
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+  border: none;
+  border-radius: 0.35rem;
+  margin-bottom: 20px;
+}
+
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e3e6f0;
+  padding: 0.75rem 1.25rem;
+}
+
+.card-header h5 {
+  margin-bottom: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Chart Container Styling */
+canvas {
+  max-height: 300px;
+}
+
+/* Table Styling */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+.table thead th {
+  border-bottom: 2px solid #e3e6f0;
+  font-weight: 600;
+}
+
+/* Navbar Styling */
+.navbar {
+  padding: 15px 10px;
+  border-bottom: 1px solid #e3e6f0;
+  margin-bottom: 20px;
+}
+
+/* Stats Section */
+.display-4 {
+  font-size: 2.5rem;
+  font-weight: 300;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  #sidebar {
+    margin-left: -250px;
+  }
+
+  #sidebar.active {
+    margin-left: 0;
+  }
+
+  #sidebarCollapse span {
+    display: none;
+  }
+}
+
+/* Prediction Charts Section */
+.prediction-chart {
+  height: 400px;
+  margin-bottom: 30px;
+}
+
+/* Location Analysis Map */
+#map-container {
+  height: 400px;
+  margin-bottom: 30px;
+}

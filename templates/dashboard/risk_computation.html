@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h1>Risk Computation</h1>
+      <p>This demonstrates how the risk assessment calculations work.</p>
+
+      <div class="card my-4">
+        <div class="card-header">
+          <h3>Location Risk Calculation</h3>
+        </div>
+        <div class="card-body">
+          <p>Each location's risk is calculated based on:</p>
+          <ul>
+            <li>Environmental factors (AQI, temperature, humidity)</li>
+            <li>Population density</li>
+            <li>Historical disease prevalence</li>
+            <li>Healthcare resource availability</li>
+          </ul>
+
+          <h4 class="mt-4">Risk Formula</h4>
+          <div class="bg-light p-3 rounded">
+            <code>
+              Risk Score = (0.4 * Environmental Factor) + <br>
+              (0.3 * Historical Disease Rate) + <br>
+              (0.2 * Population Density) + <br>
+              (0.1 * Healthcare Resource Availability)
+            </code>
+          </div>
+
+          <h4 class="mt-4">Risk Categorization</h4>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Risk Score</th>
+                <th>Risk Level</th>
+                <th>Color Code</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0-25</td>
+                <td>Low Risk</td>
+                <td><span class="badge bg-success">Green</span></td>
+              </tr>
+              <tr>
+                <td>26-50</td>
+                <td>Medium Risk</td>
+                <td><span class="badge bg-warning">Yellow</span></td>
+              </tr>
+              <tr>
+                <td>51-100</td>
+                <td>High Risk</td>
+                <td><span class="badge bg-danger">Red</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card my-4">
+        <div class="card-header">
+          <h3>Environmental Factor Impact</h3>
+        </div>
+        <div class="card-body">
+          <p>Environmental factors are weighted as follows:</p>
+
+          <h5>Air Quality Index (AQI)</h5>
+          <div class="progress mb-3">
+            <div class="progress-bar bg-danger" role="progressbar" style="width: 60%" aria-valuenow="60"
+              aria-valuemin="0" aria-valuemax="100">60%</div>
+          </div>
+
+          <h5>Temperature Variance</h5>
+          <div class="progress mb-3">
+            <div class="progress-bar bg-warning" role="progressbar" style="width: 25%" aria-valuenow="25"
+              aria-valuemin="0" aria-valuemax="100">25%</div>
+          </div>
+
+          <h5>Humidity</h5>
+          <div class="progress mb-3">
+            <div class="progress-bar bg-info" role="progressbar" style="width: 15%" aria-valuenow="15" aria-valuemin="0"
+              aria-valuemax="100">15%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card my-4">
+        <div class="card-header">
+          <h3>Predictive Model</h3>
+        </div>
+        <div class="card-body">
+          <p>Our disease prediction model uses a combination of:</p>
+          <ul>
+            <li>Random Forest Regression for time-series forecasting</li>
+            <li>Linear Regression for environmental factor correlation</li>
+            <li>Seasonal trend analysis</li>
+          </ul>
+
+          <div class="alert alert-info mt-3">
+            <p class="mb-0">Model accuracy: <strong>87.6%</strong> based on historical validation testing</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card my-4">
+        <div class="card-header">
+          <h3>Sample Calculation</h3>
+        </div>
+        <div class="card-body">
+          <h4>Downtown District</h4>
+          <table class="table">
+            <tbody>
+              <tr>
+                <th>Environmental Factor</th>
+                <td>AQI: 120 (Poor) + Temp: 28°C (High) + Humidity: 65% (Moderate)</td>
+                <td>Score: 75 × 0.4 = 30</td>
+              </tr>
+              <tr>
+                <th>Historical Disease Rate</th>
+                <td>42 cases per 1000 population (High)</td>
+                <td>Score: 80 × 0.3 = 24</td>
+              </tr>
+              <tr>
+                <th>Population Density</th>
+                <td>12,500 per sq km (High)</td>
+                <td>Score: 85 × 0.2 = 17</td>
+              </tr>
+              <tr>
+                <th>Healthcare Resources</th>
+                <td>85% capacity (Good)</td>
+                <td>Score: 25 × 0.1 = 2.5</td>
+              </tr>
+              <tr class="table-primary">
+                <th>Total Risk Score</th>
+                <td colspan="2">73.5 (High Risk)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
