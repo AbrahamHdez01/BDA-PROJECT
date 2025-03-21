@@ -17,6 +17,19 @@ MediDash is a comprehensive medical dashboard application designed for public he
 - **Frontend**: Bootstrap 5, Chart.js, Leaflet.js
 - **Containerization**: Docker, Docker Compose
 
+## Data Models
+
+The system uses a comprehensive data model to track health metrics:
+
+- **Location**: Geographic locations with coordinates and population data
+- **Demographics**: Population demographic information including age, gender, and socioeconomic status
+- **Person**: Individual records linked to demographics and locations
+- **MedicalHistory**: Individual medical history including chronic conditions and allergies
+- **Disease**: Disease information including contagion rates and symptoms
+- **EnvironmentalFactor**: Environmental metrics like air quality, temperature, and humidity
+- **HealthcareResource**: Healthcare availability metrics like hospital beds and medical personnel
+- **HealthRecord**: Core health event tracking with disease severity, risk levels, and outcomes
+
 ## Project Structure
 
 ```
@@ -25,6 +38,10 @@ MediDash/
 │   ├── models.py             # Data models for health records
 │   ├── views.py              # View controllers
 │   ├── urls.py               # URL routing
+│   ├── management/
+│   │   ├── commands/         # Custom management commands
+│   │       ├── import_data.py        # CSV data import command
+│   │       ├── import_sample_data.py # Generate sample data
 ├── templates/                # HTML templates
 │   ├── base.html             # Base template with navigation
 │   ├── dashboard/            # Dashboard-specific templates
@@ -50,10 +67,25 @@ MediDash/
 
 2. Build and start the containers:
    ```bash
-   docker-compose up -d --build
+   docker compose up --build
    ```
 
-3. Access the application at http://localhost:8000
+3. Apply migrations and create initial database structure:
+   ```bash
+   docker compose exec web python manage.py migrate
+   ```
+
+4. Populate the database with sample data:
+   ```bash
+   docker compose exec web python manage.py import_sample_data
+   ```
+
+5. Alternatively, import data from the CSV file:
+   ```bash
+   docker compose exec web python manage.py import_data /app/public_health_surveillance_dataset.csv
+   ```
+
+6. Access the application at http://localhost:8000
 
 ### Manual Setup
 
@@ -84,6 +116,7 @@ MediDash/
 4. Apply migrations and run the server:
    ```bash
    python manage.py migrate
+   python manage.py import_sample_data  # Generate sample data
    python manage.py runserver
    ```
 
@@ -98,6 +131,20 @@ The system processes several types of data:
 - **Demographics**: Population information by location
 - **Healthcare Resources**: Availability of medical resources
 
+## Data Import Options
+
+MediDash provides two methods for data import:
+
+1. **Sample Data Generation**: Use the `import_sample_data` command to generate synthetic data for testing and demonstration
+   ```bash
+   python manage.py import_sample_data
+   ```
+
+2. **CSV Import**: Import real data from a CSV file using the `import_data` command
+   ```bash
+   python manage.py import_data /path/to/your/data.csv
+   ```
+
 ## Risk Computation Methodology
 
 The risk score calculation combines:
@@ -106,6 +153,13 @@ The risk score calculation combines:
 - 30% - Historical disease prevalence
 - 20% - Population density
 - 10% - Healthcare resource availability
+
+## Dashboard Sections
+
+- **Overview**: High-level summary of key health metrics
+- **Disease Prediction**: Machine learning models to forecast disease trends
+- **Location Analysis**: Interactive maps showing geographic health risk distribution
+- **Risk Computation**: Detailed methodology for calculating and interpreting risk scores
 
 ## Development
 
