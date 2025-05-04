@@ -56,28 +56,53 @@ document.addEventListener('DOMContentLoaded', function () {
   function updateDashboardCharts(data) {
     // Update each chart with its corresponding data
     if (data.dates && data.total_counts) {
-      updateTimeSeriesChart(data.dates, data.total_counts, data.severity_data);
+      // Update the outbreak chart if it exists
+      updateOutbreakChart(data);
+
+      // Update the severity chart if it exists
+      updateSeverityChart(data);
+
+      // Update the risk chart if it exists
+      updateRiskChart(data);
     }
   }
 
-  // Function to update the time series chart with new data
-  function updateTimeSeriesChart(dates, counts, severityData) {
-    const timeSeriesChart = getChartById('timeSeriesChart');
-    if (timeSeriesChart) {
-      timeSeriesChart.data.labels = dates;
-      timeSeriesChart.data.datasets[0].data = counts;
-
-      // If we have severity breakdown, update those datasets too
-      if (severityData) {
-        const severities = Object.keys(severityData);
-        for (let i = 0; i < severities.length; i++) {
-          if (timeSeriesChart.data.datasets[i + 1]) {
-            timeSeriesChart.data.datasets[i + 1].data = severityData[severities[i]];
-          }
-        }
+  // Function to update the outbreak chart
+  function updateOutbreakChart(data) {
+    const chart = getChartById('outbreakChart');
+    if (chart) {
+      // Update with new data if available
+      if (data.outbreak_data && data.outbreak_data.labels && data.outbreak_data.data) {
+        chart.data.labels = data.outbreak_data.labels;
+        chart.data.datasets[0].data = data.outbreak_data.data;
+        chart.update();
       }
+    }
+  }
 
-      timeSeriesChart.update();
+  // Function to update the severity chart
+  function updateSeverityChart(data) {
+    const chart = getChartById('severityChart');
+    if (chart) {
+      // Update with new data if available
+      if (data.severity_data && data.severity_data.labels && data.severity_data.data) {
+        chart.data.labels = data.severity_data.labels;
+        chart.data.datasets[0].data = data.severity_data.data;
+        chart.update();
+      }
+    }
+  }
+
+  // Function to update the risk chart
+  function updateRiskChart(data) {
+    const chart = getChartById('riskChart');
+    if (chart) {
+      // Update with new data if available
+      if (data.risk_data && data.risk_data.labels && data.risk_data.data) {
+        chart.data.labels = data.risk_data.labels;
+        chart.data.datasets[0].data = data.risk_data.data;
+        chart.update();
+      }
     }
   }
 
@@ -85,10 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function getChartById(canvasId) {
     const canvas = document.getElementById(canvasId);
     if (canvas) {
-      const chartId = Object.keys(Chart.instances).find(
-        id => Chart.instances[id].canvas.id === canvasId
-      );
-      return chartId ? Chart.instances[chartId] : null;
+      return Chart.getChart(canvas);
     }
     return null;
   }
@@ -117,42 +139,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Client-side filtering as fallback (or for demo without backend)
   function filterChartsClientSide(startDate, endDate) {
-    if (window.Chart && window.Chart.instances) {
-      for (let id in window.Chart.instances) {
-        const chart = window.Chart.instances[id];
+    console.log(`Falling back to client-side filtering for date range: ${startDate.toDateString()} to ${endDate.toDateString()}`);
 
-        // Skip charts that don't have time-based data
-        if (chart.config.type === 'pie' || chart.config.type === 'doughnut' || chart.config.type === 'radar') {
-          continue;
-        }
+    // Get all chart instances on the page
+    const chartIds = ['severityChart', 'riskChart', 'outbreakChart'];
 
-        // For demo, we'll just update the visible range for line/bar charts
-        if (chart.config.type === 'line' || chart.config.type === 'bar') {
-          // Generate new sample data
-          const labels = [];
-          const data = [];
-
-          for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-            labels.push(d.toLocaleDateString());
-            data.push(Math.floor(Math.random() * 100) + 20);
-          }
-
-          // Update chart data
-          chart.data.labels = labels;
-          if (chart.data.datasets.length > 0) {
-            chart.data.datasets[0].data = data;
-
-            // If there's a second dataset (prediction data), generate that too
-            if (chart.data.datasets.length > 1) {
-              const predictionData = data.map(val => Math.floor(val * (1 + Math.random() * 0.4 - 0.1)));
-              chart.data.datasets[1].data = predictionData;
-            }
-          }
-
+    chartIds.forEach(chartId => {
+      const chart = getChartById(chartId);
+      if (chart) {
+        // For demo purposes, just update the chart title to show the date range
+        if (chart.options && chart.options.plugins && chart.options.plugins.title) {
+          const originalTitle = chart.options.plugins.title.text || "";
+          const baseTitle = originalTitle.split(' (')[0]; // Remove any existing date range
+          chart.options.plugins.title.text = `${baseTitle} (${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()})`;
           chart.update();
         }
       }
-    }
+    });
   }
 
   // Check for saved preference on page load

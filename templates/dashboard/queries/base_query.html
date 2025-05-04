@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block queries_active %}active{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h5>{{ section_title|default:"Queries" }}</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="list-group mb-4">
+              <div class="list-group-item list-group-item-primary">Available Queries</div>
+              {% for query in available_queries %}
+              <a href="?query={{ query.id }}" class="list-group-item list-group-item-action {% if request.GET.query == query.id %}active{% endif %}">
+                <h6 class="mb-1">{{ query.name }}</h6>
+                <small>{{ query.description }}</small>
+              </a>
+              {% endfor %}
+            </div>
+            
+            {% block query_filters %}
+            <!-- Query-specific filters will go here -->
+            {% endblock %}
+          </div>
+          
+          <div class="col-md-8">
+            {% if query_title %}
+            <h4>{{ query_title }}</h4>
+            <hr>
+            
+            {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+            
+            {% if is_chart %}
+            <div class="chart-container" style="position: relative; height:400px;">
+              <canvas id="queryResultChart"></canvas>
+            </div>
+            {% endif %}
+            
+            {% if query_results %}
+            <div class="table-responsive mt-4">
+              {% block query_results %}
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    {% for key in query_results.0.keys %}
+                    <th>{{ key|title }}</th>
+                    {% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in query_results %}
+                  <tr>
+                    {% for value in item.values %}
+                    <td>{{ value }}</td>
+                    {% endfor %}
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+              {% endblock %}
+            </div>
+            {% endif %}
+            
+            {% else %}
+            <div class="alert alert-info">
+              <h4>Select a Query</h4>
+              <p>Please select a query from the list on the left to view results.</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if is_chart %}
+<script>
+  // Initialize chart for query results
+  const ctx = document.getElementById('queryResultChart').getContext('2d');
+  const queryChart = new Chart(ctx, {
+    type: '{{ chart_type|default:"bar" }}',
+    data: {
+      labels: {{ chart_labels|safe }},
+      datasets: [{
+        label: '{{ query_title }}',
+        data: {{ chart_data|safe }},
+        backgroundColor: [
+          'rgba(75, 192, 192, 0.7)',
+          'rgba(54, 162, 235, 0.7)',
+          'rgba(255, 206, 86, 0.7)',
+          'rgba(255, 99, 132, 0.7)',
+          'rgba(153, 102, 255, 0.7)',
+          'rgba(255, 159, 64, 0.7)',
+          'rgba(201, 203, 207, 0.7)'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
+{% endif %}
+{% endblock %}

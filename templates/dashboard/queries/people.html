@@ -1,0 +1,88 @@
+{% extends 'dashboard/queries/base_query.html' %}
+
+{% block title %}People Queries | MediDash{% endblock %}
+
+{% block section_title %}People Queries{% endblock %}
+
+{% block query_filters %}
+{% if request.GET.query == 'people_by_location' %}
+<div class="card mt-3">
+  <div class="card-header">Filters</div>
+  <div class="card-body">
+    <form method="get" action="">
+      <input type="hidden" name="query" value="people_by_location">
+      <div class="mb-3">
+        <label for="location" class="form-label">Location</label>
+        <select class="form-select" id="location" name="location">
+          <option value="">All Locations</option>
+          {% for location in locations %}
+          <option value="{{ location.id }}" {% if request.GET.location == location.id|stringformat:"i" %}selected{% endif %}>
+            {{ location.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Apply Filter</button>
+    </form>
+  </div>
+</div>
+{% elif request.GET.query == 'people_by_demographics' %}
+<div class="card mt-3">
+  <div class="card-header">Filters</div>
+  <div class="card-body">
+    <form method="get" action="">
+      <input type="hidden" name="query" value="people_by_demographics">
+      <div class="mb-3">
+        <label for="age_min" class="form-label">Age Range</label>
+        <div class="input-group">
+          <input type="number" class="form-control" id="age_min" name="age_min" placeholder="Min" value="{{ request.GET.age_min }}">
+          <span class="input-group-text">to</span>
+          <input type="number" class="form-control" id="age_max" name="age_max" placeholder="Max" value="{{ request.GET.age_max }}">
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="gender" class="form-label">Gender</label>
+        <select class="form-select" id="gender" name="gender">
+          <option value="">All Genders</option>
+          <option value="Male" {% if request.GET.gender == 'Male' %}selected{% endif %}>Male</option>
+          <option value="Female" {% if request.GET.gender == 'Female' %}selected{% endif %}>Female</option>
+          <option value="Other" {% if request.GET.gender == 'Other' %}selected{% endif %}>Other</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Apply Filters</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block query_results %}
+{% if request.GET.query == 'people_by_location' and not is_chart %}
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Demographics</th>
+      <th>Vaccination Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for person in query_results %}
+    <tr>
+      <td>{{ person.id }}</td>
+      <td>{{ person.demographics }}</td>
+      <td>
+        {% if person.vaccination_status %}
+        <span class="badge bg-success">Vaccinated</span>
+        {% else %}
+        <span class="badge bg-danger">Not Vaccinated</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+{{ block.super }}
+{% endif %}
+{% endblock %}

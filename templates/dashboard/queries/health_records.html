@@ -1,0 +1,98 @@
+{% extends 'dashboard/queries/base_query.html' %}
+
+{% block title %}Health Record Queries | MediDash{% endblock %}
+
+{% block section_title %}Health Record Queries{% endblock %}
+
+{% block query_filters %}
+{% if request.GET.query == 'records_by_date' %}
+<div class="card mt-3">
+  <div class="card-header">Filters</div>
+  <div class="card-body">
+    <form method="get" action="">
+      <input type="hidden" name="query" value="records_by_date">
+      <div class="mb-3">
+        <label for="start_date" class="form-label">Date Range</label>
+        <div class="input-group">
+          <input type="date" class="form-control" id="start_date" name="start_date" value="{{ request.GET.start_date }}">
+          <span class="input-group-text">to</span>
+          <input type="date" class="form-control" id="end_date" name="end_date" value="{{ request.GET.end_date }}">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Apply Filter</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block query_results %}
+{% if request.GET.query == 'records_by_date' and not is_chart %}
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Count</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in query_results %}
+    <tr>
+      <td>{{ item.date_of_data_collection__date }}</td>
+      <td>{{ item.count }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% elif request.GET.query == 'records_by_risk_level' and not is_chart %}
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Risk Level</th>
+      <th>Count</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in query_results %}
+    <tr>
+      <td>
+        {% if item.infection_risk_level == 'High Risk' %}
+        <span class="badge bg-danger">{{ item.infection_risk_level }}</span>
+        {% elif item.infection_risk_level == 'Medium Risk' %}
+        <span class="badge bg-warning">{{ item.infection_risk_level }}</span>
+        {% else %}
+        <span class="badge bg-success">{{ item.infection_risk_level }}</span>
+        {% endif %}
+      </td>
+      <td>{{ item.count }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% elif request.GET.query == 'hospitalization_analysis' and not is_chart %}
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Hospitalization</th>
+      <th>Count</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in query_results %}
+    <tr>
+      <td>
+        {% if item.hospitalization_required %}
+        <span class="badge bg-danger">Hospitalized</span>
+        {% else %}
+        <span class="badge bg-success">Not Hospitalized</span>
+        {% endif %}
+      </td>
+      <td>{{ item.count }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+{{ block.super }}
+{% endif %}
+{% endblock %}

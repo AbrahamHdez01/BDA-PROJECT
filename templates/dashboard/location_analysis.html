@@ -109,11 +109,15 @@
       <div class="card-body">
         <h6 class="card-subtitle mb-2">Low Risk Areas</h6>
         {% with low_risk_areas=0 %}
-        {% for location in location_data %}
-        {% if location.high_risk_percentage < 10 %} {% with low_risk_areas=low_risk_areas|add:"1" %}{% endwith %} {%
-          endif %} {% endfor %} <h2>{{ low_risk_areas }}</h2>
+          {% for location in location_data %}
+            {% if location.high_risk_percentage < 10 %}
+              {% with low_risk_areas=low_risk_areas|add:"1" %}
+              {% endwith %}
+            {% endif %}
+          {% endfor %}
+          <h2>{{ low_risk_areas }}</h2>
           <p class="small mb-0">Locations with &lt;10% high-risk cases</p>
-          {% endwith %}
+        {% endwith %}
       </div>
     </div>
   </div>
@@ -123,11 +127,15 @@
       <div class="card-body">
         <h6 class="card-subtitle mb-2">Medium Risk Areas</h6>
         {% with med_risk_areas=0 %}
-        {% for location in location_data %}
-        {% if location.high_risk_percentage >= 10 and location.high_risk_percentage < 30 %} {% with
-          med_risk_areas=med_risk_areas|add:"1" %}{% endwith %} {% endif %} {% endfor %} <h2>{{ med_risk_areas }}</h2>
+          {% for location in location_data %}
+            {% if location.high_risk_percentage >= 10 and location.high_risk_percentage < 30 %}
+              {% with med_risk_areas=med_risk_areas|add:"1" %}
+              {% endwith %}
+            {% endif %}
+          {% endfor %}
+          <h2>{{ med_risk_areas }}</h2>
           <p class="small mb-0">Locations with 10-30% high-risk cases</p>
-          {% endwith %}
+        {% endwith %}
       </div>
     </div>
   </div>
@@ -137,13 +145,14 @@
       <div class="card-body">
         <h6 class="card-subtitle mb-2">High Risk Areas</h6>
         {% with high_risk_areas=0 %}
-        {% for location in location_data %}
-        {% if location.high_risk_percentage >= 30 %}
-        {% with high_risk_areas=high_risk_areas|add:"1" %}{% endwith %}
-        {% endif %}
-        {% endfor %}
-        <h2>{{ high_risk_areas }}</h2>
-        <p class="small mb-0">Locations with &gt;30% high-risk cases</p>
+          {% for location in location_data %}
+            {% if location.high_risk_percentage >= 30 %}
+              {% with high_risk_areas=high_risk_areas|add:"1" %}
+              {% endwith %}
+            {% endif %}
+          {% endfor %}
+          <h2>{{ high_risk_areas }}</h2>
+          <p class="small mb-0">Locations with &gt;30% high-risk cases</p>
         {% endwith %}
       </div>
     </div>

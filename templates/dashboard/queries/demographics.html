@@ -1,0 +1,162 @@
+{% extends 'dashboard/queries/base_query.html' %}
+
+{% block title %}Demographic Queries | MediDash{% endblock %}
+
+{% block section_title %}Demographic Queries{% endblock %}
+
+{% block query_filters %}
+{% if request.GET.query == 'age_distribution' %}
+<div class="card mt-3">
+  <div class="card-header">Filters</div>
+  <div class="card-body">
+    <form method="get" action="">
+      <input type="hidden" name="query" value="age_distribution">
+      <div class="mb-3">
+        <label for="location" class="form-label">Location (Optional)</label>
+        <select class="form-select" id="location" name="location">
+          <option value="">All Locations</option>
+          {% for location in locations %}
+          <option value="{{ location.id }}" {% if request.GET.location == location.id|stringformat:"i" %}selected{% endif %}>
+            {{ location.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Apply Filter</button>
+    </form>
+  </div>
+</div>
+{% elif request.GET.query == 'gender_distribution' %}
+<div class="card mt-3">
+  <div class="card-header">Filters</div>
+  <div class="card-body">
+    <form method="get" action="">
+      <input type="hidden" name="query" value="gender_distribution">
+      <div class="mb-3">
+        <label for="location" class="form-label">Location (Optional)</label>
+        <select class="form-select" id="location" name="location">
+          <option value="">All Locations</option>
+          {% for location in locations %}
+          <option value="{{ location.id }}" {% if request.GET.location == location.id|stringformat:"i" %}selected{% endif %}>
+            {{ location.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Apply Filter</button>
+    </form>
+  </div>
+</div>
+{% elif request.GET.query == 'socioeconomic_analysis' %}
+<div class="card mt-3">
+  <div class="card-header">Filters</div>
+  <div class="card-body">
+    <form method="get" action="">
+      <input type="hidden" name="query" value="socioeconomic_analysis">
+      <div class="mb-3">
+        <label for="location" class="form-label">Location (Optional)</label>
+        <select class="form-select" id="location" name="location">
+          <option value="">All Locations</option>
+          {% for location in locations %}
+          <option value="{{ location.id }}" {% if request.GET.location == location.id|stringformat:"i" %}selected{% endif %}>
+            {{ location.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Apply Filter</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block query_results %}
+{% if request.GET.query == 'age_distribution' and not is_chart %}
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Age Group</th>
+      <th>Count</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in query_results %}
+    <tr>
+      <td>{{ item.age_group }}</td>
+      <td>{{ item.count }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% elif request.GET.query == 'gender_distribution' and not is_chart %}
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Gender</th>
+      <th>Count</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in query_results %}
+    <tr>
+      <td>{{ item.gender }}</td>
+      <td>{{ item.count }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% elif request.GET.query == 'socioeconomic_analysis' and not is_chart %}
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Socioeconomic Status</th>
+      <th>Count</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in query_results %}
+    <tr>
+      <td>{{ item.socioeconomic_status }}</td>
+      <td>{{ item.count }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+{{ block.super }}
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if is_chart %}
+<script>
+  // Initialize chart for query results
+  const ctx = document.getElementById('queryResultChart').getContext('2d');
+  const queryChart = new Chart(ctx, {
+    type: '{{ chart_type|default:"pie" }}',
+    data: {
+      labels: {{ chart_labels|safe }},
+      datasets: [{
+        label: '{{ query_title }}',
+        data: {{ chart_data|safe }},
+        backgroundColor: [
+          'rgba(75, 192, 192, 0.7)',
+          'rgba(54, 162, 235, 0.7)',
+          'rgba(255, 206, 86, 0.7)',
+          'rgba(255, 99, 132, 0.7)',
+          'rgba(153, 102, 255, 0.7)',
+          'rgba(255, 159, 64, 0.7)',
+          'rgba(201, 203, 207, 0.7)'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  });
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'dashboard/queries/base_query.html' %}
+
+{% block title %}Disease Queries | MediDash{% endblock %}
+
+{% block section_title %}Disease Queries{% endblock %}
+
+{% block query_filters %}
+{% if request.GET.query == 'disease_severity_analysis' %}
+<div class="card mt-3">
+  <div class="card-header">Filters</div>
+  <div class="card-body">
+    <form method="get" action="">
+      <input type="hidden" name="query" value="disease_severity_analysis">
+      <div class="mb-3">
+        <label for="disease" class="form-label">Disease</label>
+        <select class="form-select" id="disease" name="disease">
+          <option value="">All Diseases</option>
+          {% for disease in diseases %}
+          <option value="{{ disease.id }}" {% if request.GET.disease == disease.id|stringformat:"i" %}selected{% endif %}>
+            {{ disease.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Apply Filter</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block query_results %}
+{% if request.GET.query == 'disease_prevalence' and not is_chart %}
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Disease</th>
+      <th>Count</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in query_results %}
+    <tr>
+      <td>{{ item.disease__name }}</td>
+      <td>{{ item.count }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% elif request.GET.query == 'disease_by_type' and not is_chart %}
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Disease Type</th>
+      <th>Count</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in query_results %}
+    <tr>
+      <td>{{ item.type }}</td>
+      <td>{{ item.count }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% elif request.GET.query == 'disease_severity_analysis' and not is_chart %}
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Severity</th>
+      <th>Count</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in query_results %}
+    <tr>
+      <td>
+        {% if item.disease_severity == 'Severe' %}
+        <span class="badge bg-danger">{{ item.disease_severity }}</span>
+        {% elif item.disease_severity == 'Moderate' %}
+        <span class="badge bg-warning">{{ item.disease_severity }}</span>
+        {% elif item.disease_severity == 'Mild' %}
+        <span class="badge bg-info">{{ item.disease_severity }}</span>
+        {% else %}
+        <span class="badge bg-success">{{ item.disease_severity }}</span>
+        {% endif %}
+      </td>
+      <td>{{ item.count }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+{{ block.super }}
+{% endif %}
+{% endblock %}
