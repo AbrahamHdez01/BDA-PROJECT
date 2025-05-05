@@ -213,14 +213,50 @@ class LocationAnalysisView(TemplateView):
             'resource_util': []
         }
 
-        # Generate sample location data for demo purposes
+        # Generate sample location data for demo purposes with global coverage
         # In a real app, this would be fetched from the database
         sample_location_data = [
-            {"name": "Downtown", "type": "Urban", "records": 3245, "high_risk": 35, "env_quality": "Moderate"},
-            {"name": "Westside", "type": "Suburban", "records": 2178, "high_risk": 18, "env_quality": "Good"},
-            {"name": "Northside", "type": "Urban", "records": 4125, "high_risk": 42, "env_quality": "Poor"},
-            {"name": "Eastside", "type": "Suburban", "records": 1872, "high_risk": 12, "env_quality": "Good"},
-            {"name": "Southside", "type": "Rural", "records": 928, "high_risk": 8, "env_quality": "Good"}
+            # North America
+            {"name": "New York", "type": "Urban", "records": 3245, "high_risk": 35, "env_quality": "Moderate", "lat": 40.7128, "lon": -74.0060},
+            {"name": "Los Angeles", "type": "Urban", "records": 2890, "high_risk": 28, "env_quality": "Poor", "lat": 34.0522, "lon": -118.2437},
+            {"name": "Chicago", "type": "Urban", "records": 2178, "high_risk": 18, "env_quality": "Good", "lat": 41.8781, "lon": -87.6298},
+            {"name": "Toronto", "type": "Urban", "records": 1872, "high_risk": 12, "env_quality": "Good", "lat": 43.6532, "lon": -79.3832},
+            {"name": "Mexico City", "type": "Urban", "records": 4125, "high_risk": 42, "env_quality": "Poor", "lat": 19.4326, "lon": -99.1332},
+
+            # Europe
+            {"name": "London", "type": "Urban", "records": 2950, "high_risk": 22, "env_quality": "Moderate", "lat": 51.5074, "lon": -0.1278},
+            {"name": "Paris", "type": "Urban", "records": 2780, "high_risk": 25, "env_quality": "Moderate", "lat": 48.8566, "lon": 2.3522},
+            {"name": "Berlin", "type": "Urban", "records": 2150, "high_risk": 15, "env_quality": "Good", "lat": 52.5200, "lon": 13.4050},
+            {"name": "Rome", "type": "Urban", "records": 1950, "high_risk": 20, "env_quality": "Moderate", "lat": 41.9028, "lon": 12.4964},
+            {"name": "Madrid", "type": "Urban", "records": 1850, "high_risk": 18, "env_quality": "Moderate", "lat": 40.4168, "lon": -3.7038},
+
+            # Asia
+            {"name": "Tokyo", "type": "Urban", "records": 4500, "high_risk": 30, "env_quality": "Moderate", "lat": 35.6762, "lon": 139.6503},
+            {"name": "Beijing", "type": "Urban", "records": 4200, "high_risk": 45, "env_quality": "Poor", "lat": 39.9042, "lon": 116.4074},
+            {"name": "Mumbai", "type": "Urban", "records": 5100, "high_risk": 48, "env_quality": "Poor", "lat": 19.0760, "lon": 72.8777},
+            {"name": "Seoul", "type": "Urban", "records": 3200, "high_risk": 25, "env_quality": "Moderate", "lat": 37.5665, "lon": 126.9780},
+            {"name": "Singapore", "type": "Urban", "records": 1800, "high_risk": 10, "env_quality": "Good", "lat": 1.3521, "lon": 103.8198},
+
+            # Africa
+            {"name": "Cairo", "type": "Urban", "records": 3800, "high_risk": 40, "env_quality": "Poor", "lat": 30.0444, "lon": 31.2357},
+            {"name": "Lagos", "type": "Urban", "records": 4100, "high_risk": 45, "env_quality": "Poor", "lat": 6.5244, "lon": 3.3792},
+            {"name": "Johannesburg", "type": "Urban", "records": 2600, "high_risk": 30, "env_quality": "Moderate", "lat": -26.2041, "lon": 28.0473},
+            {"name": "Nairobi", "type": "Urban", "records": 2200, "high_risk": 28, "env_quality": "Moderate", "lat": -1.2921, "lon": 36.8219},
+            {"name": "Casablanca", "type": "Urban", "records": 1900, "high_risk": 22, "env_quality": "Moderate", "lat": 33.5731, "lon": -7.5898},
+
+            # South America
+            {"name": "São Paulo", "type": "Urban", "records": 4300, "high_risk": 38, "env_quality": "Poor", "lat": -23.5505, "lon": -46.6333},
+            {"name": "Buenos Aires", "type": "Urban", "records": 3100, "high_risk": 25, "env_quality": "Moderate", "lat": -34.6037, "lon": -58.3816},
+            {"name": "Lima", "type": "Urban", "records": 2800, "high_risk": 30, "env_quality": "Poor", "lat": -12.0464, "lon": -77.0428},
+            {"name": "Bogotá", "type": "Urban", "records": 2500, "high_risk": 28, "env_quality": "Moderate", "lat": 4.7110, "lon": -74.0721},
+            {"name": "Santiago", "type": "Urban", "records": 2200, "high_risk": 20, "env_quality": "Moderate", "lat": -33.4489, "lon": -70.6693},
+
+            # Oceania
+            {"name": "Sydney", "type": "Urban", "records": 1950, "high_risk": 15, "env_quality": "Good", "lat": -33.8688, "lon": 151.2093},
+            {"name": "Melbourne", "type": "Urban", "records": 1800, "high_risk": 12, "env_quality": "Good", "lat": -37.8136, "lon": 144.9631},
+            {"name": "Auckland", "type": "Urban", "records": 1200, "high_risk": 8, "env_quality": "Good", "lat": -36.8509, "lon": 174.7645},
+            {"name": "Brisbane", "type": "Urban", "records": 1400, "high_risk": 10, "env_quality": "Good", "lat": -27.4698, "lon": 153.0251},
+            {"name": "Perth", "type": "Urban", "records": 1100, "high_risk": 8, "env_quality": "Good", "lat": -31.9505, "lon": 115.8605}
         ]
 
         # Location coordinates for map (demonstration data)
@@ -259,18 +295,14 @@ class LocationAnalysisView(TemplateView):
             resource_data_by_location['personnel'].append(90 if location_type == "Urban" else (70 if location_type == "Suburban" else 45))
             resource_data_by_location['resource_util'].append(75 if location_type == "Urban" else (60 if location_type == "Suburban" else 50))
 
-            # Add map coordinates (demo values with random offsets)
-            import random
-            base_lat = 40.7 # Example: New York City area
-            base_lon = -74.0
-
             # Assign risk level
             risk_level = "high" if high_risk_percentage > 30 else "medium" if high_risk_percentage > 15 else "low"
 
+            # Use the actual coordinates from the location data
             location_coords.append({
                 'name': name,
-                'lat': base_lat + random.uniform(-0.1, 0.1),
-                'lon': base_lon + random.uniform(-0.1, 0.1),
+                'lat': location_info.get('lat', 0),  # Use provided lat or default to 0
+                'lon': location_info.get('lon', 0),  # Use provided lon or default to 0
                 'risk_level': risk_level,
                 'case_count': record_count
             })
@@ -622,6 +654,7 @@ class PeopleQueriesView(TemplateView):
         context['query_results'] = location_counts
         context['query_title'] = 'People Distribution by Location'
         context['is_chart'] = True
+        context['chart_type'] = 'polarArea'  # Changed from default bar to polar area chart
         context['chart_labels'] = [item['location__name'] for item in location_counts]
         context['chart_data'] = [item['count'] for item in location_counts]
 
@@ -647,6 +680,21 @@ class PeopleQueriesView(TemplateView):
 
                 context['query_results'] = query
                 context['query_title'] = 'People Filtered by Demographics'
+                context['is_chart'] = True
+                context['chart_type'] = 'bar'  # Added bar chart (column chart)
+                # Create age groups for the chart
+                age_groups = {}
+                for person in query:
+                    if hasattr(person, 'demographics') and person.demographics and person.demographics.age:
+                        age_group = 'Under 18' if person.demographics.age < 18 else \
+                                   '18-29' if person.demographics.age < 30 else \
+                                   '30-44' if person.demographics.age < 45 else \
+                                   '45-59' if person.demographics.age < 60 else \
+                                   '60-74' if person.demographics.age < 75 else '75+'
+                        age_groups[age_group] = age_groups.get(age_group, 0) + 1
+
+                context['chart_labels'] = list(age_groups.keys())
+                context['chart_data'] = list(age_groups.values())
 
             elif query_id == 'vaccination_status':
                 # Execute vaccination status query
@@ -656,6 +704,7 @@ class PeopleQueriesView(TemplateView):
                 context['query_results'] = vaccination_counts
                 context['query_title'] = 'Vaccination Status Distribution'
                 context['is_chart'] = True
+                context['chart_type'] = 'horizontalBar'  # Changed to horizontal bar chart
                 context['chart_labels'] = ['Vaccinated', 'Not Vaccinated']
                 context['chart_data'] = [
                     next((item['count'] for item in vaccination_counts if item['vaccination_status']), 0),
@@ -699,6 +748,7 @@ class DiseaseQueriesView(TemplateView):
         context['query_results'] = disease_counts
         context['query_title'] = 'Disease Prevalence'
         context['is_chart'] = True
+        context['chart_type'] = 'radar'  # Changed from default bar to radar chart
         context['chart_labels'] = [item['disease__name'] for item in disease_counts[:10]]
         context['chart_data'] = [item['count'] for item in disease_counts[:10]]
 
@@ -716,6 +766,7 @@ class DiseaseQueriesView(TemplateView):
                 context['query_results'] = type_counts
                 context['query_title'] = 'Diseases by Type'
                 context['is_chart'] = True
+                context['chart_type'] = 'line'  # Changed to line chart with fill (area chart)
                 context['chart_labels'] = [item['type'] for item in type_counts]
                 context['chart_data'] = [item['count'] for item in type_counts]
 
@@ -731,6 +782,7 @@ class DiseaseQueriesView(TemplateView):
                         context['query_results'] = severity_counts
                         context['query_title'] = f'Severity Analysis for {disease.name}'
                         context['is_chart'] = True
+                        context['chart_type'] = 'bar'  # Changed to bar chart (column chart)
                         context['chart_labels'] = [item['disease_severity'] for item in severity_counts]
                         context['chart_data'] = [item['count'] for item in severity_counts]
                     except Disease.DoesNotExist:
@@ -743,6 +795,7 @@ class DiseaseQueriesView(TemplateView):
                     context['query_results'] = severity_counts
                     context['query_title'] = 'Overall Disease Severity Distribution'
                     context['is_chart'] = True
+                    context['chart_type'] = 'horizontalBar'  # Changed to horizontal bar chart
                     context['chart_labels'] = [item['disease_severity'] for item in severity_counts]
                     context['chart_data'] = [item['count'] for item in severity_counts]
 
@@ -780,6 +833,7 @@ class HealthRecordQueriesView(TemplateView):
         context['query_results'] = risk_counts
         context['query_title'] = 'Health Records by Risk Level'
         context['is_chart'] = True
+        context['chart_type'] = 'doughnut'  # Changed from default bar to doughnut chart
         context['chart_labels'] = [item['infection_risk_level'] for item in risk_counts]
         context['chart_data'] = [item['count'] for item in risk_counts]
 
@@ -798,6 +852,7 @@ class HealthRecordQueriesView(TemplateView):
                 date_counts_list = list(date_counts)
                 # Get the last 30 records or all if less than 30
                 recent_records = date_counts_list[-30:] if len(date_counts_list) >= 30 else date_counts_list
+                context['chart_type'] = 'line'  # Changed from default bar to line chart for time series data
                 context['chart_labels'] = [item['date_of_data_collection__date'].strftime('%Y-%m-%d') for item in recent_records]
                 context['chart_data'] = [item['count'] for item in recent_records]
 
@@ -813,6 +868,7 @@ class HealthRecordQueriesView(TemplateView):
                 context['query_results'] = hospitalization_counts
                 context['query_title'] = 'Hospitalization Analysis'
                 context['is_chart'] = True
+                context['chart_type'] = 'pie'  # Changed from default bar to pie chart
                 context['chart_labels'] = ['Hospitalized', 'Not Hospitalized']
                 context['chart_data'] = [
                     next((item['count'] for item in hospitalization_counts if item['hospitalization_required']), 0),
@@ -876,7 +932,7 @@ class DemographicQueriesView(TemplateView):
         context['query_results'] = demographics
         context['query_title'] = f'Age Distribution - {location_name}'
         context['is_chart'] = True
-        context['chart_type'] = 'pie'
+        context['chart_type'] = 'doughnut'  # Changed from pie to doughnut chart
         context['chart_labels'] = [item['age_group'] for item in demographics]
         context['chart_data'] = [item['count'] for item in demographics]
 
@@ -930,7 +986,7 @@ class DemographicQueriesView(TemplateView):
                 context['query_results'] = gender_counts
                 context['query_title'] = f'Gender Distribution - {location_name}'
                 context['is_chart'] = True
-                context['chart_type'] = 'pie'
+                context['chart_type'] = 'polarArea'  # Changed from pie to polarArea chart
                 context['chart_labels'] = [item['gender'] for item in gender_counts]
                 context['chart_data'] = [item['count'] for item in gender_counts]
 
@@ -949,7 +1005,7 @@ class DemographicQueriesView(TemplateView):
                 context['query_results'] = socioeconomic_counts
                 context['query_title'] = f'Socioeconomic Status Distribution - {location_name}'
                 context['is_chart'] = True
-                context['chart_type'] = 'pie'
+                context['chart_type'] = 'bar'  # Changed from pie to bar chart
                 context['chart_labels'] = [item['socioeconomic_status'] for item in socioeconomic_counts]
                 context['chart_data'] = [item['count'] for item in socioeconomic_counts]
 

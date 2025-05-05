@@ -39,30 +39,21 @@ document.addEventListener('DOMContentLoaded', function () {
       days = 365; // Use a large number for "All Time"
     }
 
-    // Get today's date
     const endDate = new Date();
-    // Calculate start date based on selected time range
     const startDate = new Date();
     startDate.setDate(endDate.getDate() - days);
 
-    // Filter datasets for each chart based on the date range
     updateChartsForDateRange(startDate, endDate);
 
-    // Save the user's preference
     localStorage.setItem('preferredTimeRange', timeRange);
   }
 
-  // Function to update charts with new data from API
   function updateDashboardCharts(data) {
-    // Update each chart with its corresponding data
     if (data.dates && data.total_counts) {
-      // Update the outbreak chart if it exists
       updateOutbreakChart(data);
 
-      // Update the severity chart if it exists
       updateSeverityChart(data);
 
-      // Update the risk chart if it exists
       updateRiskChart(data);
     }
   }
@@ -70,7 +61,6 @@ document.addEventListener('DOMContentLoaded', function () {
   function updateOutbreakChart(data) {
     const chart = getChartById('outbreakChart');
     if (chart) {
-      // Update with new data if available
       if (data.outbreak_data && data.outbreak_data.labels && data.outbreak_data.data) {
         chart.data.labels = data.outbreak_data.labels;
         chart.data.datasets[0].data = data.outbreak_data.data;
@@ -105,7 +95,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Helper function to get Chart.js instance by canvas ID
   function getChartById(canvasId) {
     const canvas = document.getElementById(canvasId);
     if (canvas) {
@@ -114,7 +103,6 @@ document.addEventListener('DOMContentLoaded', function () {
     return null;
   }
 
-  // Apply the filtering to all charts on the page
   function updateChartsForDateRange(startDate, endDate) {
     // Request updated data from the server
     fetch(`/dashboard/api/disease-trends/?start=${startDate.toISOString()}&end=${endDate.toISOString()}`)
@@ -136,11 +124,9 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
-  // Client-side filtering as fallback (or for demo without backend)
   function filterChartsClientSide(startDate, endDate) {
     console.log(`Falling back to client-side filtering for date range: ${startDate.toDateString()} to ${endDate.toDateString()}`);
 
-    // Get all chart instances on the page
     const chartIds = ['severityChart', 'riskChart', 'outbreakChart'];
 
     chartIds.forEach(chartId => {
@@ -157,14 +143,12 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Check for saved preference on page load
   const savedTimeRange = localStorage.getItem('preferredTimeRange');
   if (savedTimeRange && timeRangeDropdown) {
     timeRangeDropdown.textContent = savedTimeRange;
     setTimeout(() => loadDataForTimeRange(savedTimeRange), 500);
   }
 
-  // Set up responsive behavior for charts
   function resizeCharts() {
     if (window.Chart && window.Chart.instances) {
       for (let id in window.Chart.instances) {
@@ -173,12 +157,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Call resize on window resize
   window.addEventListener('resize', function () {
     resizeCharts();
   });
 
-  // Initialize tooltips
   const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
   if (tooltips.length > 0 && typeof bootstrap !== 'undefined') {
     tooltips.forEach(tooltip => {
@@ -186,20 +168,18 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Helper function to format dates for display
+  // Helper f
   window.formatDate = function (dateString) {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
     const date = new Date(dateString);
     return date.toLocaleDateString(undefined, options);
   };
 
-  // Helper function to format numbers with commas
   window.formatNumber = function (number) {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 });
 
-// Function to load data via AJAX (for future use)
 function loadDashboardData(endpoint, callback) {
   fetch(endpoint)
     .then(response => {

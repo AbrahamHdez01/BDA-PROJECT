@@ -416,8 +416,8 @@
     const mapContainer = document.getElementById('map');
     if (!mapContainer) return;
 
-    // Create the map
-    const map = L.map('map').setView([40.7, -74.0], 10);
+    // Create the map with a global view
+    const map = L.map('map').setView([20, 0], 2);
 
     // Add tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -476,7 +476,8 @@
     // Fit map to show all markers if any exist
     if (markers.length > 0) {
       const group = new L.featureGroup(markers);
-      map.fitBounds(group.getBounds().pad(0.1));
+      // Use a larger padding for global data to ensure all markers are visible
+      map.fitBounds(group.getBounds().pad(0.2));
     }
   }
 
@@ -630,7 +631,8 @@
                 'rgba(255, 159, 64, 0.7)',
                 'rgba(201, 203, 207, 0.7)'
               ],
-              borderWidth: 1
+              borderWidth: 1,
+              fill: {% if disease_queries.chart_type == 'line' %}true{% else %}false{% endif %}
             }]
           },
           options: {
