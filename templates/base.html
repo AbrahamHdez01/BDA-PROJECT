@@ -31,31 +31,6 @@
         <li class="{% block prediction_active %}{% endblock %}">
           <a href="{% url 'dashboard:prediction' %}"><i class="fas fa-crystal-ball"></i> Disease Prediction</a>
         </li>
-        <li class="{% block location_active %}{% endblock %}">
-          <a href="{% url 'dashboard:location_analysis' %}"><i class="fas fa-map-marker-alt"></i> Location Analysis</a>
-        </li>
-        <li class="{% block risk_active %}{% endblock %}">
-          <a href="{% url 'dashboard:risk_computation' %}"><i class="fas fa-calculator"></i> Risk Computation</a>
-        </li>
-        <li class="{% block queries_active %}{% endblock %}">
-          <a href="#queriesSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-            <i class="fas fa-search"></i> Queries
-          </a>
-          <ul class="collapse list-unstyled" id="queriesSubmenu">
-            <li>
-              <a href="{% url 'dashboard:people_queries' %}"><i class="fas fa-users"></i> People</a>
-            </li>
-            <li>
-              <a href="{% url 'dashboard:disease_queries' %}"><i class="fas fa-virus"></i> Diseases</a>
-            </li>
-            <li>
-              <a href="{% url 'dashboard:health_record_queries' %}"><i class="fas fa-notes-medical"></i> Health Records</a>
-            </li>
-            <li>
-              <a href="{% url 'dashboard:demographic_queries' %}"><i class="fas fa-chart-pie"></i> Demographics</a>
-            </li>
-          </ul>
-        </li>
         <li>
           <a href="/admin/"><i class="fas fa-cog"></i> Admin Panel</a>
         </li>

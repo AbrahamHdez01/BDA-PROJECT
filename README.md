@@ -6,8 +6,6 @@ MediDash is a comprehensive medical dashboard application designed for public he
 
 - **Dashboard Overview**: Summary of key health metrics and recent records
 - **Disease Prediction**: ML-powered forecasting of disease trends based on historical data
-- **Location Analysis**: Geographic visualization of health risks with interactive maps
-- **Risk Computation**: Transparent methodology for calculating health risk scores
 
 ## Technology Stack
 
@@ -145,21 +143,11 @@ MediDash provides two methods for data import:
    python manage.py import_data /path/to/your/data.csv
    ```
 
-## Risk Computation Methodology
-
-The risk score calculation combines:
-
-- 40% - Environmental factors (AQI, temperature, humidity)
-- 30% - Historical disease prevalence
-- 20% - Population density
-- 10% - Healthcare resource availability
 
 ## Dashboard Sections
 
 - **Overview**: High-level summary of key health metrics
 - **Disease Prediction**: Machine learning models to forecast disease trends
-- **Location Analysis**: Interactive maps showing geographic health risk distribution
-- **Risk Computation**: Detailed methodology for calculating and interpreting risk scores
 
 ## Development
 

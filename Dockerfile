@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 # Install necessary packages
 RUN apt-get update && apt-get install -y \
-  netcat-traditional \
+  netcat-openbsd \
   postgresql-client \
   gcc \
   python3-dev \
@@ -26,8 +26,8 @@ RUN pip install --upgrade pip && \
 # Copy project files
 COPY . .
 
-# Make entrypoint script executable
-RUN chmod +x /app/entrypoint.sh
+# Make entrypoint script executable and ensure it has Unix line endings
+RUN sed -i 's/\r$//' /app/entrypoint.sh && chmod +x /app/entrypoint.sh
 
 # Run entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]

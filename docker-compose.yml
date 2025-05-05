@@ -2,7 +2,13 @@ services:
   web:
     build: .
     volumes:
-      - .:/app
+      - ./dashboard:/app/dashboard
+      - ./MediDash:/app/MediDash
+      - ./static:/app/static
+      - ./templates:/app/templates
+      - ./manage.py:/app/manage.py
+      - ./requirements.txt:/app/requirements.txt
+      - ./public_health_surveillance_dataset.csv:/app/public_health_surveillance_dataset.csv
       - static_volume:/app/staticfiles
     ports:
       - "8080:8080"

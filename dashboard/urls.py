@@ -4,10 +4,9 @@ from . import views
 app_name = 'dashboard'
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', views.consolidated_dashboard, name='index'),
+    path('original/', views.index, name='original_index'),
     path('prediction/', views.disease_prediction, name='prediction'),
-    path('location-analysis/', views.location_analysis, name='location_analysis'),
-    path('risk-computation/', views.risk_computation, name='risk_computation'),
 
     # Query section URLs
     path('queries/people/', views.people_queries, name='people_queries'),

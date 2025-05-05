@@ -67,7 +67,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Function to update the outbreak chart
   function updateOutbreakChart(data) {
     const chart = getChartById('outbreakChart');
     if (chart) {

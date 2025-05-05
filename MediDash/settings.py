@@ -41,8 +41,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'whitenoise.runserver_nostatic',
-    # Add dashboard app - we'll create this next
-    'dashboard',
+    # Add dashboard app with its configuration
+    'dashboard.apps.DashboardConfig',
 ]
 
 MIDDLEWARE = [

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 
 {% block prediction_active %}active{% endblock %}
 
@@ -90,11 +91,11 @@
               <td>
                 {% if location.risk_change > 0 %}
                 <span class="text-danger"><i class="fas fa-arrow-up"></i> {{ location.risk_change }}%</span>
-                {% elif location.risk_change < 0 %} <span class="text-success"><i class="fas fa-arrow-down"></i> {{
-                  location.risk_change|abs }}%</span>
-                  {% else %}
-                  <span class="text-muted">No change</span>
-                  {% endif %}
+                {% elif location.risk_change < 0 %}
+                <span class="text-success"><i class="fas fa-arrow-down"></i> {{ location.risk_change|abs }}%</span>
+                {% else %}
+                <span class="text-muted">No change</span>
+                {% endif %}
               </td>
             </tr>
             {% endfor %}

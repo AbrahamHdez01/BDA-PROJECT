@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView, DetailView, ListView
-from django.db.models import Count, Avg, Sum, Q, F
+from django.db.models import Count, Avg, Sum, Q, F, CharField
 from django.db import connection
 from django.http import JsonResponse
 from django.utils import timezone
@@ -353,6 +353,112 @@ def risk_computation(request):
     view = RiskComputationView.as_view()
     return view(request)
 
+class ConsolidatedDashboardView(TemplateView):
+    template_name = 'dashboard/consolidated_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Get data from DashboardView
+        dashboard_view = DashboardView()
+        dashboard_context = dashboard_view.get_context_data()
+        context.update({
+            'total_records': dashboard_context.get('total_records', 0),
+            'distinct_people': dashboard_context.get('distinct_people', 0),
+            'distinct_locations': dashboard_context.get('distinct_locations', 0),
+            'recent_records': dashboard_context.get('recent_records', []),
+            'severity_data': dashboard_context.get('severity_data', {'labels': [], 'data': []}),
+            'risk_data': dashboard_context.get('risk_data', {'labels': [], 'data': []}),
+            'outbreak_data': dashboard_context.get('outbreak_data', {'labels': [], 'data': []}),
+        })
+
+        # Get data from LocationAnalysisView
+        location_view = LocationAnalysisView()
+        location_context = location_view.get_context_data()
+        context.update({
+            'location_data': location_context.get('location_data', []),
+            'map_data': location_context.get('map_data', '[]'),
+            'environment_data': location_context.get('environment_data', {}),
+            'resource_data': location_context.get('resource_data', {}),
+            'risk_summary': location_context.get('risk_summary', {}),
+        })
+
+        # Get data from DiseasePredictionView
+        prediction_view = DiseasePredictionView()
+        prediction_context = prediction_view.get_context_data()
+        context.update({
+            'time_series': prediction_context.get('time_series', {}),
+            'aqi_severity': prediction_context.get('aqi_severity', []),
+            'aqi_prediction': prediction_context.get('aqi_prediction', {}),
+            'locations': prediction_context.get('locations', []),
+        })
+
+        # Get data from PeopleQueriesView
+        people_view = PeopleQueriesView()
+        people_view.request = self.request
+        people_context = people_view.get_context_data()
+        context['people_queries'] = {
+            'available_queries': people_context.get('available_queries', []),
+            'query_results': people_context.get('query_results', None),
+            'query_title': people_context.get('query_title', None),
+            'is_chart': people_context.get('is_chart', False),
+            'chart_labels': people_context.get('chart_labels', []),
+            'chart_data': people_context.get('chart_data', []),
+            'locations': people_context.get('locations', []),
+            'error': people_context.get('error', None),
+        }
+
+        # Get data from DiseaseQueriesView
+        disease_view = DiseaseQueriesView()
+        disease_view.request = self.request
+        disease_context = disease_view.get_context_data()
+        context['disease_queries'] = {
+            'available_queries': disease_context.get('available_queries', []),
+            'query_results': disease_context.get('query_results', None),
+            'query_title': disease_context.get('query_title', None),
+            'is_chart': disease_context.get('is_chart', False),
+            'chart_labels': disease_context.get('chart_labels', []),
+            'chart_data': disease_context.get('chart_data', []),
+            'diseases': disease_context.get('diseases', []),
+            'error': disease_context.get('error', None),
+        }
+
+        # Get data from HealthRecordQueriesView
+        health_record_view = HealthRecordQueriesView()
+        health_record_view.request = self.request
+        health_record_context = health_record_view.get_context_data()
+        context['health_record_queries'] = {
+            'available_queries': health_record_context.get('available_queries', []),
+            'query_results': health_record_context.get('query_results', None),
+            'query_title': health_record_context.get('query_title', None),
+            'is_chart': health_record_context.get('is_chart', False),
+            'chart_labels': health_record_context.get('chart_labels', []),
+            'chart_data': health_record_context.get('chart_data', []),
+            'error': health_record_context.get('error', None),
+        }
+
+        # Get data from DemographicQueriesView
+        demographic_view = DemographicQueriesView()
+        demographic_view.request = self.request
+        demographic_context = demographic_view.get_context_data()
+        context['demographic_queries'] = {
+            'available_queries': demographic_context.get('available_queries', []),
+            'query_results': demographic_context.get('query_results', None),
+            'query_title': demographic_context.get('query_title', None),
+            'is_chart': demographic_context.get('is_chart', False),
+            'chart_labels': demographic_context.get('chart_labels', []),
+            'chart_data': demographic_context.get('chart_data', []),
+            'locations': demographic_context.get('locations', []),
+            'error': demographic_context.get('error', None),
+        }
+
+        return context
+
+def consolidated_dashboard(request):
+    """Consolidated dashboard view for decision makers"""
+    view = ConsolidatedDashboardView.as_view()
+    return view(request)
+
 def api_disease_trends(request):
     """API endpoint to get disease trends over time"""
     # Get date range from request parameters or use defaults
@@ -505,31 +611,26 @@ class PeopleQueriesView(TemplateView):
             }
         ]
 
-        # Handle query execution if requested
+        # Get all locations for filter dropdowns
+        context['locations'] = Location.objects.all()
+
+        # Always execute the people by location query
+        # Group people by location
+        location_counts = Person.objects.values('location__name').annotate(
+            count=Count('id')
+        ).order_by('-count')
+        context['query_results'] = location_counts
+        context['query_title'] = 'People Distribution by Location'
+        context['is_chart'] = True
+        context['chart_labels'] = [item['location__name'] for item in location_counts]
+        context['chart_data'] = [item['count'] for item in location_counts]
+
+        # Handle query execution if requested (for backward compatibility)
         query_id = self.request.GET.get('query')
         if query_id:
             if query_id == 'people_by_location':
-                # Execute people by location query
-                location_id = self.request.GET.get('location')
-                if location_id:
-                    try:
-                        location = Location.objects.get(id=location_id)
-                        people = Person.objects.filter(location=location)
-                        context['query_results'] = people
-                        context['query_title'] = f'People in {location.name}'
-                    except Location.DoesNotExist:
-                        context['error'] = 'Location not found'
-                else:
-                    # Group people by location
-                    location_counts = Person.objects.values('location__name').annotate(
-                        count=Count('id')
-                    ).order_by('-count')
-                    context['query_results'] = location_counts
-                    context['query_title'] = 'People Distribution by Location'
-                    context['is_chart'] = True
-                    context['chart_labels'] = [item['location__name'] for item in location_counts]
-                    context['chart_data'] = [item['count'] for item in location_counts]
-
+                # Already executed above
+                pass
             elif query_id == 'people_by_demographics':
                 # Execute people by demographics query
                 age_min = self.request.GET.get('age_min')
@@ -561,9 +662,6 @@ class PeopleQueriesView(TemplateView):
                     next((item['count'] for item in vaccination_counts if not item['vaccination_status']), 0)
                 ]
 
-        # Get all locations for filter dropdowns
-        context['locations'] = Location.objects.all()
-
         return context
 
 class DiseaseQueriesView(TemplateView):
@@ -591,20 +689,25 @@ class DiseaseQueriesView(TemplateView):
             }
         ]
 
-        # Handle query execution if requested
+        # Get all diseases for filter dropdowns
+        context['diseases'] = Disease.objects.all()
+
+        # Always execute disease prevalence query
+        disease_counts = HealthRecord.objects.values('disease__name').annotate(
+            count=Count('id')
+        ).order_by('-count')
+        context['query_results'] = disease_counts
+        context['query_title'] = 'Disease Prevalence'
+        context['is_chart'] = True
+        context['chart_labels'] = [item['disease__name'] for item in disease_counts[:10]]
+        context['chart_data'] = [item['count'] for item in disease_counts[:10]]
+
+        # Handle query execution if requested (for backward compatibility)
         query_id = self.request.GET.get('query')
         if query_id:
             if query_id == 'disease_prevalence':
-                # Execute disease prevalence query
-                disease_counts = HealthRecord.objects.values('disease__name').annotate(
-                    count=Count('id')
-                ).order_by('-count')
-                context['query_results'] = disease_counts
-                context['query_title'] = 'Disease Prevalence'
-                context['is_chart'] = True
-                context['chart_labels'] = [item['disease__name'] for item in disease_counts[:10]]
-                context['chart_data'] = [item['count'] for item in disease_counts[:10]]
-
+                # Already executed above
+                pass
             elif query_id == 'disease_by_type':
                 # Execute diseases by type query
                 type_counts = Disease.objects.values('type').annotate(
@@ -643,9 +746,6 @@ class DiseaseQueriesView(TemplateView):
                     context['chart_labels'] = [item['disease_severity'] for item in severity_counts]
                     context['chart_data'] = [item['count'] for item in severity_counts]
 
-        # Get all diseases for filter dropdowns
-        context['diseases'] = Disease.objects.all()
-
         return context
 
 class HealthRecordQueriesView(TemplateView):
@@ -673,7 +773,17 @@ class HealthRecordQueriesView(TemplateView):
             }
         ]
 
-        # Handle query execution if requested
+        # Always execute records by risk level query
+        risk_counts = HealthRecord.objects.values('infection_risk_level').annotate(
+            count=Count('id')
+        ).order_by('infection_risk_level')
+        context['query_results'] = risk_counts
+        context['query_title'] = 'Health Records by Risk Level'
+        context['is_chart'] = True
+        context['chart_labels'] = [item['infection_risk_level'] for item in risk_counts]
+        context['chart_data'] = [item['count'] for item in risk_counts]
+
+        # Handle query execution if requested (for backward compatibility)
         query_id = self.request.GET.get('query')
         if query_id:
             if query_id == 'records_by_date':
@@ -692,15 +802,8 @@ class HealthRecordQueriesView(TemplateView):
                 context['chart_data'] = [item['count'] for item in recent_records]
 
             elif query_id == 'records_by_risk_level':
-                # Execute records by risk level query
-                risk_counts = HealthRecord.objects.values('infection_risk_level').annotate(
-                    count=Count('id')
-                ).order_by('infection_risk_level')
-                context['query_results'] = risk_counts
-                context['query_title'] = 'Health Records by Risk Level'
-                context['is_chart'] = True
-                context['chart_labels'] = [item['infection_risk_level'] for item in risk_counts]
-                context['chart_data'] = [item['count'] for item in risk_counts]
+                # Already executed above
+                pass
 
             elif query_id == 'hospitalization_analysis':
                 # Execute hospitalization analysis query
@@ -746,13 +849,42 @@ class DemographicQueriesView(TemplateView):
         # Get all locations for filter dropdowns
         context['locations'] = Location.objects.all()
 
-        # Handle query execution if requested
+        # Default location settings
+        location_filter = None
+        location_name = "All Locations"
+
+        # Always execute age distribution query
+        # Create age groups
+        from django.db.models import Case, When, IntegerField, Value
+
+        # Start with base query
+        query = Demographics.objects.all()
+
+        # Annotate with age groups and count
+        demographics = query.annotate(
+            age_group=Case(
+                When(age__lt=18, then=Value('Under 18')),
+                When(age__lt=30, then=Value('18-29')),
+                When(age__lt=45, then=Value('30-44')),
+                When(age__lt=60, then=Value('45-59')),
+                When(age__lt=75, then=Value('60-74')),
+                default=Value('75+'),
+                output_field=CharField(),
+            )
+        ).values('age_group').annotate(count=Count('id')).order_by('age_group')
+
+        context['query_results'] = demographics
+        context['query_title'] = f'Age Distribution - {location_name}'
+        context['is_chart'] = True
+        context['chart_type'] = 'pie'
+        context['chart_labels'] = [item['age_group'] for item in demographics]
+        context['chart_data'] = [item['count'] for item in demographics]
+
+        # Handle query execution if requested (for backward compatibility)
         query_id = self.request.GET.get('query')
         if query_id:
             # Check if location filter is applied
             location_id = self.request.GET.get('location')
-            location_filter = None
-            location_name = "All Locations"
 
             if location_id:
                 try:
@@ -763,36 +895,25 @@ class DemographicQueriesView(TemplateView):
                     pass
 
             if query_id == 'age_distribution':
-                # Execute age distribution query
-                # Create age groups
-                from django.db.models import Case, When, IntegerField, Value
-
-                # Start with base query
-                query = Demographics.objects.all()
-
-                # Apply location filter if specified
+                # If location filter is applied, re-execute with filter
                 if location_filter:
-                    query = query.filter(person__location=location_filter)
+                    query = Demographics.objects.filter(person__location=location_filter)
+                    demographics = query.annotate(
+                        age_group=Case(
+                            When(age__lt=18, then=Value('Under 18')),
+                            When(age__lt=30, then=Value('18-29')),
+                            When(age__lt=45, then=Value('30-44')),
+                            When(age__lt=60, then=Value('45-59')),
+                            When(age__lt=75, then=Value('60-74')),
+                            default=Value('75+'),
+                            output_field=CharField(),
+                        )
+                    ).values('age_group').annotate(count=Count('id')).order_by('age_group')
 
-                # Annotate with age groups and count
-                demographics = query.annotate(
-                    age_group=Case(
-                        When(age__lt=18, then=Value('Under 18')),
-                        When(age__lt=30, then=Value('18-29')),
-                        When(age__lt=45, then=Value('30-44')),
-                        When(age__lt=60, then=Value('45-59')),
-                        When(age__lt=75, then=Value('60-74')),
-                        default=Value('75+'),
-                        output_field=models.CharField(),
-                    )
-                ).values('age_group').annotate(count=Count('id')).order_by('age_group')
-
-                context['query_results'] = demographics
-                context['query_title'] = f'Age Distribution - {location_name}'
-                context['is_chart'] = True
-                context['chart_type'] = 'pie'
-                context['chart_labels'] = [item['age_group'] for item in demographics]
-                context['chart_data'] = [item['count'] for item in demographics]
+                    context['query_results'] = demographics
+                    context['query_title'] = f'Age Distribution - {location_name}'
+                    context['chart_labels'] = [item['age_group'] for item in demographics]
+                    context['chart_data'] = [item['count'] for item in demographics]
 
             elif query_id == 'gender_distribution':
                 # Execute gender distribution query
@@ -836,21 +957,33 @@ class DemographicQueriesView(TemplateView):
 
 # Function-based views for the query sections
 def people_queries(request):
-    """People queries view"""
-    view = PeopleQueriesView.as_view()
-    return view(request)
+    """People queries view - redirects to consolidated dashboard with people section"""
+    from django.shortcuts import redirect
+    query = request.GET.get('query', '')
+    if query:
+        return redirect(f'/?query={query}&section=people')
+    return redirect('/?section=people')
 
 def disease_queries(request):
-    """Disease queries view"""
-    view = DiseaseQueriesView.as_view()
-    return view(request)
+    """Disease queries view - redirects to consolidated dashboard with diseases section"""
+    from django.shortcuts import redirect
+    query = request.GET.get('query', '')
+    if query:
+        return redirect(f'/?query={query}&section=diseases')
+    return redirect('/?section=diseases')
 
 def health_record_queries(request):
-    """Health record queries view"""
-    view = HealthRecordQueriesView.as_view()
-    return view(request)
+    """Health record queries view - redirects to consolidated dashboard with health-records section"""
+    from django.shortcuts import redirect
+    query = request.GET.get('query', '')
+    if query:
+        return redirect(f'/?query={query}&section=health-records')
+    return redirect('/?section=health-records')
 
 def demographic_queries(request):
-    """Demographic queries view"""
-    view = DemographicQueriesView.as_view()
-    return view(request)
+    """Demographic queries view - redirects to consolidated dashboard with demographics section"""
+    from django.shortcuts import redirect
+    query = request.GET.get('query', '')
+    if query:
+        return redirect(f'/?query={query}&section=demographics')
+    return redirect('/?section=demographics')

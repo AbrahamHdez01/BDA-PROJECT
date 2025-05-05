@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Consultas de Servicio 📈</h1>
+
+    <!-- Botones para elegir sección -->
+    <div class="d-flex justify-content-center mb-4 flex-wrap gap-3">
+        <button class="btn btn-primary" onclick="showQueries('personas')">Personas</button>
+        <button class="btn btn-primary" onclick="showQueries('enfermedades')">Enfermedades</button>
+        <button class="btn btn-primary" onclick="showQueries('salud')">Registros de Salud</button>
+        <button class="btn btn-primary" onclick="showQueries('demografia')">Demografía</button>
+        <button class="btn btn-primary" onclick="showQueries('predicciones')">Predicciones</button>
+    </div>
+
+    <!-- Aquí mostramos los queries dinámicamente -->
+    <div id="querySection" class="card p-4 shadow-sm">
+        <h4>Selecciona una categoría para ver las consultas disponibles.</h4>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const queries = {
+    personas: [
+        "Total de personas registradas",
+        "Personas vacunadas vs no vacunadas",
+        "Distribución por género",
+        "Promedio de edad de personas"
+    ],
+    enfermedades: [
+        "Listado de enfermedades registradas",
+        "Top 5 enfermedades más comunes",
+        "Enfermedades por tipo (viral, bacteriana, etc.)"
+    ],
+    salud: [
+        "Historial de salud por persona",
+        "Casos severos vs moderados",
+        "Nivel de riesgo de infección promedio"
+    ],
+    demografia: [
+        "Distribución de ocupaciones",
+        "Promedio de edad por ocupación",
+        "Distribución socioeconómica de personas"
+    ],
+    predicciones: [
+        "Proyección de nuevos casos en los próximos 30 días",
+        "Impacto de calidad del aire sobre severidad",
+        "Ubicaciones con aumento de riesgo proyectado"
+    ]
+};
+
+function showQueries(section) {
+    const queryList = queries[section];
+    const querySection = document.getElementById('querySection');
+    querySection.innerHTML = `
+        <h3 class="mb-3 text-capitalize">${section}</h3>
+        <ul class="list-group">
+            ${queryList.map(q => `<li class="list-group-item">${q}</li>`).join('')}
+        </ul>
+    `;
+}
+</script>
+{% endblock %}
