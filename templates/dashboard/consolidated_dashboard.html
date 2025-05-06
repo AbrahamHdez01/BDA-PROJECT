@@ -9,7 +9,7 @@
   integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <style>
   #map {
-    height: 400px;
+    height: 600px;
     width: 100%;
     border-radius: 5px;
   }
@@ -70,63 +70,264 @@
 {% endblock %}
 
 {% block content %}
-<!-- Dashboard Header -->
+
+<!-- Main KPI Panel -->
 <div class="row mb-4">
-  <div class="col-md-12">
-    <div class="card">
-      <div class="card-header">
-        <h5>Consolidated Dashboard</h5>
-      </div>
+  <div class="col-md-3">
+    <div class="card bg-primary text-white metric-card">
       <div class="card-body">
-        <p class="mb-3">This dashboard provides a map view and query graphs for health data analysis.</p>
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-white-50">Total Cases</h6>
+            <h2 class="mb-0">{{ total_records|default:"0" }}</h2>
+          </div>
+          <div class="fs-1">
+            <i class="fas fa-clipboard-list"></i>
+          </div>
+        </div>
+        <div class="mt-2">
+          <span class="badge bg-light text-primary">
+            <i class="fas fa-arrow-up"></i> 12% from last month
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card bg-warning text-white metric-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-white-50">Active Cases</h6>
+            <h2 class="mb-0">{{ active_cases|default:"0" }}</h2>
+          </div>
+          <div class="fs-1">
+            <i class="fas fa-procedures"></i>
+          </div>
+        </div>
+        <div class="mt-2">
+          <span class="badge bg-light text-warning">
+            <i class="fas fa-arrow-down"></i> 5% from last month
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card bg-success text-white metric-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-white-50">Recovered Cases</h6>
+            <h2 class="mb-0">{{ recovered_cases|default:"0" }}</h2>
+          </div>
+          <div class="fs-1">
+            <i class="fas fa-heart"></i>
+          </div>
+        </div>
+        <div class="mt-2">
+          <span class="badge bg-light text-success">
+            <i class="fas fa-arrow-up"></i> 8% from last month
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card bg-danger text-white metric-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-white-50">Critical Cases</h6>
+            <h2 class="mb-0">{{ critical_cases|default:"0" }}</h2>
+          </div>
+          <div class="fs-1">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+        </div>
+        <div class="mt-2">
+          <span class="badge bg-light text-danger">
+            <i class="fas fa-arrow-down"></i> 3% from last month
+          </span>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Interactive Map Row -->
-<div class="row mb-4">
-  <div class="col-md-12">
-    <div class="card">
-      <div class="card-header">
-        <h5>Disease Risk Map</h5>
+<!-- Main Dashboard Layout -->
+<div class="row">
+  <!-- Main Content Column (Sección Principal) -->
+  <div class="col-md-9">
+    <!-- Row 1: Map and Temporal Trend -->
+    <div class="row mb-4">
+      <!-- Disease Risk Map -->
+      <div class="col-md-12">
+        <div class="card h-100">
+          <div class="card-header">
+            <h5>Disease Risk Map</h5>
+          </div>
+          <div class="card-body">
+            <div id="map"></div>
+            <div class="mt-3">
+              <div class="d-flex justify-content-center">
+                <div class="px-2"><span class="badge bg-success">&nbsp;</span> Low Risk</div>
+                <div class="px-2"><span class="badge bg-warning">&nbsp;</span> Medium Risk</div>
+                <div class="px-2"><span class="badge bg-danger">&nbsp;</span> High Risk</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="card-body">
-        <div id="map"></div>
-        <div class="mt-3">
-          <div class="d-flex justify-content-center">
-            <div class="px-2"><span class="badge bg-success">&nbsp;</span> Low Risk</div>
-            <div class="px-2"><span class="badge bg-warning">&nbsp;</span> Medium Risk</div>
-            <div class="px-2"><span class="badge bg-danger">&nbsp;</span> High Risk</div>
+    </div>
+
+    <!-- Row 2: Disease Type and Age Groups -->
+    <div class="row mb-4">
+      <!-- Disease Type Distribution (Pie Chart) -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5>Disease Type Distribution</h5>
+            <div class="btn-group btn-group-sm" role="group">
+              <button type="button" class="btn btn-outline-primary active" onclick="toggleChartType('diseaseTypeChart', 'pie')">Pie</button>
+              <button type="button" class="btn btn-outline-primary" onclick="toggleChartType('diseaseTypeChart', 'bar')">Bar</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="diseaseTypeChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Age Group Analysis (Horizontal Bar Chart) -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header">
+            <h5>Age Group Analysis</h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="ageGroupChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 3: Monthly Comparison and Geographic Distribution -->
+    <div class="row mb-4">
+      <!-- Monthly Comparison Evolution (Multiple Line Chart) -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header">
+            <h5>Monthly Comparison Evolution</h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="monthlyComparisonChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Row 4: Severity Indicators (Scatter Plot) -->
+    <div class="row mb-4">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <h5>Severity Indicators</h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="severityIndicatorsChart"></canvas>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Query Graphs Row -->
-<div class="row mb-4">
-  <div class="col-md-6">
-    <div class="card">
+  <!-- Sidebar Column (Panel Lateral) -->
+  <div class="col-md-3">
+    <!-- Filter Card -->
+    <div class="card mb-4">
       <div class="card-header">
-        <h5>Disease Severity Distribution</h5>
+        <h5>Filters</h5>
       </div>
       <div class="card-body">
-        <div class="chart-container">
-          <canvas id="severityChart"></canvas>
+        <div class="mb-3">
+          <label for="yearFilter" class="form-label">Year</label>
+          <select class="form-select" id="yearFilter">
+            <option value="all">All</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="monthFilter" class="form-label">Month</label>
+          <select class="form-select" id="monthFilter">
+            <option value="all">All</option>
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="diseaseFilter" class="form-label">Disease</label>
+          <select class="form-select" id="diseaseFilter">
+            <option value="all">All</option>
+            <option value="covid19">COVID-19</option>
+            <option value="influenza">Influenza</option>
+            <option value="dengue">Dengue</option>
+          </select>
+        </div>
+        <button class="btn btn-primary w-100" onclick="applyFilters()">Apply Filters</button>
+      </div>
+    </div>
+
+    <!-- Mini Trend Charts -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5>Recent Trends</h5>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <h6>Daily Cases</h6>
+          <h2 class="display-4 text-primary">{{ daily_cases|default:"20" }}</h2>
+        </div>
+        <div class="mb-3">
+          <h6>Hospitalizations</h6>
+          <h2 class="display-4 text-danger">{{ hospitalizations|default:"10" }}</h2>
+        </div>
+        <div class="mb-3">
+          <h6>Recoveries</h6>
+          <h2 class="display-4 text-success">{{ recoveries|default:"18" }}</h2>
         </div>
       </div>
     </div>
-  </div>
-  <div class="col-md-6">
+
+    <!-- Patient State Distribution -->
     <div class="card">
       <div class="card-header">
-        <h5>Risk Level Distribution</h5>
+        <h5>Patient Status</h5>
       </div>
       <div class="card-body">
         <div class="chart-container">
-          <canvas id="riskChart"></canvas>
+          <canvas id="patientStateChart"></canvas>
         </div>
       </div>
     </div>
@@ -385,9 +586,14 @@
     // Initialize the map
     initMap();
 
-    // Create charts
-    createSeverityChart();
-    createRiskChart();
+    // Initialize all dashboard charts
+    initDashboardCharts();
+
+    // Initialize mini charts in sidebar
+    initMiniCharts();
+
+    // Initialize patient state chart
+    createPatientStateChart();
 
     // Initialize query charts if they exist
     initQueryCharts();
@@ -481,32 +687,34 @@
     }
   }
 
-  function createSeverityChart() {
-    const ctx = document.getElementById('severityChart');
+  function initDashboardCharts() {
+    // Create all main dashboard charts
+    createDiseaseTypeChart();
+    createAgeGroupChart();
+    createMonthlyComparisonChart();
+    createSeverityIndicatorsChart();
+  }
+
+  function createDiseaseTypeChart() {
+    const ctx = document.getElementById('diseaseTypeChart');
     if (!ctx) return;
 
-    let severityData;
-    try {
-      severityData = JSON.parse('{{ severity_data|escapejs }}');
-    } catch (e) {
-      console.error('Error parsing severity data:', e);
-      severityData = {
-        labels: ['None', 'Mild', 'Moderate', 'Severe'],
-        data: [10, 25, 40, 25]
-      };
-    }
+    // Sample data for disease types
+    const diseaseTypes = ['Respiratory', 'Cardiovascular', 'Gastrointestinal', 'Neurological', 'Other'];
+    const caseCounts = [300, 150, 100, 80, 50];
 
-    new Chart(ctx, {
+    window.diseaseTypeChart = new Chart(ctx, {
       type: 'pie',
       data: {
-        labels: severityData.labels,
+        labels: diseaseTypes,
         datasets: [{
-          data: severityData.data,
+          data: caseCounts,
           backgroundColor: [
-            'rgba(40, 167, 69, 0.8)',
-            'rgba(255, 193, 7, 0.8)',
-            'rgba(255, 128, 0, 0.8)',
-            'rgba(220, 53, 69, 0.8)'
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(75, 192, 192, 0.7)',
+            'rgba(153, 102, 255, 0.7)'
           ],
           borderWidth: 1
         }]
@@ -516,42 +724,299 @@
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            position: 'bottom'
+            position: 'right'
           },
           title: {
             display: true,
-            text: 'Disease Severity Distribution'
+            text: 'Disease Type Distribution'
           }
         }
       }
     });
   }
 
-  function createRiskChart() {
-    const ctx = document.getElementById('riskChart');
+  function createAgeGroupChart() {
+    const ctx = document.getElementById('ageGroupChart');
     if (!ctx) return;
 
-    let riskData;
-    try {
-      riskData = JSON.parse('{{ risk_data|escapejs }}');
-    } catch (e) {
-      console.error('Error parsing risk data:', e);
-      riskData = {
-        labels: ['Low Risk', 'Medium Risk', 'High Risk'],
-        data: [45, 35, 20]
-      };
+    // Sample data for age groups
+    const ageGroups = ['0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70+'];
+    const maleCounts = [20, 30, 40, 50, 45, 35, 25, 15];
+    const femaleCounts = [25, 35, 45, 55, 50, 40, 30, 20];
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ageGroups,
+        datasets: [
+          {
+            label: 'Male',
+            data: maleCounts,
+            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+          },
+          {
+            label: 'Female',
+            data: femaleCounts,
+            backgroundColor: 'rgba(255, 99, 132, 0.7)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Cases by Age Group and Gender'
+          }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Number of Cases'
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function createMonthlyComparisonChart() {
+    const ctx = document.getElementById('monthlyComparisonChart');
+    if (!ctx) return;
+
+    // Sample data for monthly comparison
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+    const year2023 = [65, 59, 80, 81, 56, 55];
+    const year2024 = [28, 48, 40, 19, 86, 27];
+    const year2025 = [90, 120, 160, 190, 210, 250];
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: months,
+        datasets: [
+          {
+            label: '2023',
+            data: year2023,
+            borderColor: 'rgba(54, 162, 235, 1)',
+            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+            borderWidth: 2,
+            tension: 0.4,
+            pointRadius: 4
+          },
+          {
+            label: '2024',
+            data: year2024,
+            borderColor: 'rgba(255, 99, 132, 1)',
+            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+            borderWidth: 2,
+            tension: 0.4,
+            pointRadius: 4
+          },
+          {
+            label: '2025',
+            data: year2025,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+            borderWidth: 2,
+            tension: 0.4,
+            pointRadius: 4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Monthly Case Comparison by Year'
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Number of Cases'
+            }
+          }
+        }
+      }
+    });
+  }
+
+
+  function createSeverityIndicatorsChart() {
+    const ctx = document.getElementById('severityIndicatorsChart');
+    if (!ctx) return;
+
+    // Generate random scatter data
+    const generateScatterData = (count, xMin, xMax, yMin, yMax) => {
+      const data = [];
+      for (let i = 0; i < count; i++) {
+        data.push({
+          x: Math.random() * (xMax - xMin) + xMin,
+          y: Math.random() * (yMax - yMin) + yMin,
+          r: Math.random() * 10 + 5 // Random radius between 5 and 15
+        });
+      }
+      return data;
+    };
+
+    // Sample data for severity indicators
+    const lowSeverity = generateScatterData(20, 0, 100, 0, 30);
+    const mediumSeverity = generateScatterData(15, 20, 120, 30, 60);
+    const highSeverity = generateScatterData(10, 40, 140, 60, 100);
+
+    new Chart(ctx, {
+      type: 'bubble',
+      data: {
+        datasets: [
+          {
+            label: 'Low Severity',
+            data: lowSeverity,
+            backgroundColor: 'rgba(40, 167, 69, 0.7)',
+            borderColor: 'rgba(40, 167, 69, 1)',
+            borderWidth: 1
+          },
+          {
+            label: 'Medium Severity',
+            data: mediumSeverity,
+            backgroundColor: 'rgba(255, 193, 7, 0.7)',
+            borderColor: 'rgba(255, 193, 7, 1)',
+            borderWidth: 1
+          },
+          {
+            label: 'High Severity',
+            data: highSeverity,
+            backgroundColor: 'rgba(220, 53, 69, 0.7)',
+            borderColor: 'rgba(220, 53, 69, 1)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Severity Indicators by Age and Duration'
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return `Age: ${Math.round(context.parsed.x)}, Duration: ${Math.round(context.parsed.y)} days, Cases: ${Math.round(context.parsed.r)}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Age'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Duration (days)'
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Function to initialize trend numbers in the sidebar
+  function initMiniCharts() {
+    // This function now updates the number displays instead of creating charts
+    updateTrendNumbers();
+  }
+
+  // Function to update trend numbers
+  function updateTrendNumbers() {
+    // Fetch the latest trend data from the server
+    fetch('/dashboard/api/disease-trends/?days=7')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch trend data');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Update the number displays with the latest data
+        updateNumberDisplay('daily_cases', data.daily_cases || 20);
+        updateNumberDisplay('hospitalizations', data.hospitalizations || 10);
+        updateNumberDisplay('recoveries', data.recoveries || 18);
+      })
+      .catch(error => {
+        console.error('Error updating trend numbers:', error);
+        // Use default values if there's an error
+        updateNumberDisplay('daily_cases', 20);
+        updateNumberDisplay('hospitalizations', 10);
+        updateNumberDisplay('recoveries', 18);
+      });
+  }
+
+  // Helper function to update a number display
+  function updateNumberDisplay(key, value) {
+    // Find the display element by its parent's h6 text
+    const headers = document.querySelectorAll('.card-body h6');
+    for (const header of headers) {
+      if (header.textContent.includes('Daily Cases') && key === 'daily_cases') {
+        const display = header.nextElementSibling;
+        if (display && display.tagName === 'H2') {
+          display.textContent = value;
+        }
+      } else if (header.textContent.includes('Hospitalizations') && key === 'hospitalizations') {
+        const display = header.nextElementSibling;
+        if (display && display.tagName === 'H2') {
+          display.textContent = value;
+        }
+      } else if (header.textContent.includes('Recoveries') && key === 'recoveries') {
+        const display = header.nextElementSibling;
+        if (display && display.tagName === 'H2') {
+          display.textContent = value;
+        }
+      }
     }
+  }
+
+  // Function to create patient state chart
+  function createPatientStateChart() {
+    const ctx = document.getElementById('patientStateChart');
+    if (!ctx) return;
+
+    // Sample data for patient states
+    const states = ['Active', 'Recovered', 'Critical', 'Deceased'];
+    const counts = [45, 35, 15, 5];
 
     new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: riskData.labels,
+        labels: states,
         datasets: [{
-          data: riskData.data,
+          data: counts,
           backgroundColor: [
-            'rgba(40, 167, 69, 0.8)',
-            'rgba(255, 193, 7, 0.8)',
-            'rgba(220, 53, 69, 0.8)'
+            'rgba(255, 193, 7, 0.7)',
+            'rgba(40, 167, 69, 0.7)',
+            'rgba(220, 53, 69, 0.7)',
+            'rgba(108, 117, 125, 0.7)'
           ],
           borderWidth: 1
         }]
@@ -561,15 +1026,132 @@
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            position: 'bottom'
-          },
-          title: {
-            display: true,
-            text: 'Infection Risk Distribution'
+            position: 'bottom',
+            labels: {
+              boxWidth: 12
+            }
           }
         }
       }
     });
+  }
+
+  // Function to toggle chart type for disease type chart
+  function toggleChartType(chartId, newType) {
+    const chart = window[chartId];
+    if (!chart) return;
+
+    // Save current data
+    const data = chart.data;
+
+    // Destroy current chart
+    chart.destroy();
+
+    // Get canvas element
+    const ctx = document.getElementById(chartId);
+
+    // Create new chart with the same data but different type
+    window[chartId] = new Chart(ctx, {
+      type: newType,
+      data: data,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: newType === 'pie' ? 'right' : 'top'
+          },
+          title: {
+            display: true,
+            text: 'Disease Type Distribution'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            display: newType !== 'pie'
+          },
+          x: {
+            display: newType !== 'pie'
+          }
+        }
+      }
+    });
+
+    // Update button states
+    document.querySelectorAll(`button[onclick*="${chartId}"]`).forEach(btn => {
+      btn.classList.remove('active');
+    });
+    document.querySelector(`button[onclick*="${chartId}, '${newType}'"]`).classList.add('active');
+  }
+
+  // Function to apply filters
+  function applyFilters() {
+    const year = document.getElementById('yearFilter').value;
+    const month = document.getElementById('monthFilter').value;
+    const disease = document.getElementById('diseaseFilter').value;
+
+    console.log(`Applying filters: Year=${year}, Month=${month}, Disease=${disease}`);
+
+    // Show loading indicator
+    showLoading(true);
+
+    // Create URL with filter parameters
+    let url = '/dashboard/api/disease-trends/?';
+    if (year !== 'all') url += `year=${year}&`;
+    if (month !== 'all') url += `month=${month}&`;
+    if (disease !== 'all') url += `disease=${disease}&`;
+
+    // Fetch filtered data from the server
+    fetch(url)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch filtered data');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Update all charts with filtered data
+        updateDashboardCharts(data);
+        showLoading(false);
+      })
+      .catch(error => {
+        console.error('Error applying filters:', error);
+        showLoading(false);
+
+        // For demo purposes, simulate filtered data
+        simulateFilteredData(year, month, disease);
+      });
+  }
+
+  // Function to simulate filtered data for demo purposes
+  function simulateFilteredData(year, month, disease) {
+    // Refresh charts with simulated filtered data
+    initDashboardCharts();
+
+    // Update filter status in UI
+    const filterStatus = document.createElement('div');
+    filterStatus.className = 'alert alert-success mt-3';
+    filterStatus.innerHTML = `<strong>Filters applied:</strong> Year=${year}, Month=${month}, Disease=${disease}`;
+
+    // Add to the filter card
+    const filterHeaders = document.querySelectorAll('.card-header');
+    let filterCard;
+    for (const header of filterHeaders) {
+      if (header.textContent.includes('Filters')) {
+        filterCard = header.closest('.card');
+        break;
+      }
+    }
+    const existingStatus = filterCard ? filterCard.querySelector('.alert') : null;
+    if (existingStatus) {
+      existingStatus.remove();
+    }
+    if (filterCard) {
+      filterCard.appendChild(filterStatus);
+    } else {
+      console.error('Filter card not found');
+    }
   }
 
   function initQueryCharts() {

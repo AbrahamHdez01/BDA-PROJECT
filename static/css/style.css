@@ -1,26 +1,44 @@
-/* Main Dashboard Styling */
+/* Main Dashboard Styling - Optimized for performance */
 
+/* Use system fonts for better performance */
 body {
   background-color: #f8f9fa;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  margin: 0;
+  padding: 0;
+  /* Improve text rendering */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Sidebar Styling */
+/* Sidebar Styling - with containment for better performance */
 .wrapper {
   display: flex;
   width: 100%;
+  /* Prevent layout thrashing */
+  contain: layout;
 }
 
 #sidebar {
-  min-width: 250px;
-  max-width: 250px;
-  min-height: 100vh;
-  transition: all 0.3s;
+  width: 250px; /* Use fixed width instead of min/max */
+  height: 100vh;
+  /* Use transform instead of margin for better performance */
+  transform: translateX(0);
+  transition: transform 0.3s ease;
   padding: 15px;
+  /* Use will-change to hint browser about animation */
+  will-change: transform;
+  /* Contain the sidebar to its own layer */
+  contain: layout style paint;
+  /* Force hardware acceleration */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  z-index: 10;
 }
 
 #sidebar.active {
-  margin-left: -250px;
+  transform: translateX(-100%);
 }
 
 #sidebar .sidebar-header {
@@ -59,16 +77,21 @@ body {
 #content {
   width: 100%;
   min-height: 100vh;
-  transition: all 0.3s;
+  transition: transform 0.3s ease; /* Use transform instead of all */
   padding: 0;
+  /* Contain the content to its own layer */
+  contain: layout style;
 }
 
-/* Card Styling */
+/* Card Styling - optimize box-shadow for performance */
 .card {
-  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+  /* Use a simpler box-shadow for better performance */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: none;
   border-radius: 0.35rem;
   margin-bottom: 20px;
+  /* Contain the card to its own layer */
+  contain: layout style;
 }
 
 .card-header {
@@ -83,18 +106,26 @@ body {
   font-weight: 600;
 }
 
-/* Chart Container Styling */
+/* Chart Container Styling - with fixed height for better layout stability */
 canvas {
-  max-height: 300px;
+  height: 300px;
+  width: 100%;
+  /* Prevent layout shifts */
+  contain: strict;
 }
 
 /* Table Styling */
 .table-responsive {
   overflow-x: auto;
+  /* Optimize scrolling performance */
+  -webkit-overflow-scrolling: touch;
 }
 
 .table {
   margin-bottom: 0;
+  /* Prevent layout shifts */
+  table-layout: fixed;
+  width: 100%;
 }
 
 .table thead th {
@@ -107,6 +138,8 @@ canvas {
   padding: 15px 10px;
   border-bottom: 1px solid #e3e6f0;
   margin-bottom: 20px;
+  /* Contain the navbar to its own layer */
+  contain: layout style;
 }
 
 /* Stats Section */
@@ -115,18 +148,55 @@ canvas {
   font-weight: 300;
 }
 
-/* Responsive Adjustments */
+/* Loading indicator */
+#loadingIndicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Adjustments - with performance optimizations */
 @media (max-width: 768px) {
   #sidebar {
-    margin-left: -250px;
+    transform: translateX(-100%);
   }
 
   #sidebar.active {
-    margin-left: 0;
+    transform: translateX(0);
   }
 
   #sidebarCollapse span {
     display: none;
+  }
+
+  /* Optimize for mobile devices */
+  .card {
+    margin-bottom: 15px;
+  }
+
+  canvas {
+    height: 250px; /* Smaller height for mobile */
   }
 }
 
@@ -134,10 +204,14 @@ canvas {
 .prediction-chart {
   height: 400px;
   margin-bottom: 30px;
+  /* Prevent layout shifts */
+  contain: strict;
 }
 
 /* Location Analysis Map */
 #map-container {
   height: 400px;
   margin-bottom: 30px;
+  /* Prevent layout shifts */
+  contain: strict;
 }
